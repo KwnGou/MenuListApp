@@ -12,10 +12,12 @@ namespace MenuListApp
 
             //Add services to the container.
             builder.Services.AddDbContext<MenuListDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MenuListDB")));
-            //builder.Services.AddAutoMapper(typeof(MapperProfile));
+            builder.Services.AddAutoMapper(typeof(MapperProfile));
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -23,6 +25,8 @@ namespace MenuListApp
             if (app.Environment.IsDevelopment())
             {
                 app.UseWebAssemblyDebugging();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
             else
             {
