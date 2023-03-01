@@ -1,0 +1,24 @@
+﻿DB Scaffolding
+==============
+
+1. Use 'Pluralizer'
+Install-Package Bricelam.EntityFrameworkCore.Pluralizer
+
+2. Scaffold DB
+   - Command must be ONE LINE
+   - Multiline with explanation:
+     Scaffold-DbContext   --> the command
+       "Server=.;Database=MenuListDB;Trusted_Connection=True;" --> DB connection string
+       Microsoft.EntityFrameworkCore.SqlServer --> DB server is MS SQL Server
+       -OutputDir Model --> put models in folder 'Model'
+       -Tables "Ingredients", "IngredientsCategory", "Items", "ItemsCategory", "Menu", "PlateCategory",
+       "PlateIngredients", "Plates", "ShoppingList" --> Tables to scaffold
+       -Context MenuListDBContext --> name of DB context
+       -ContextDir Model --> put context in folder 'Model'
+       -Force --> Update existing files
+   - Single line:
+       Scaffold-DbContext "Server=.;Database=MenuListDB;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -Tables "Ingredients", "IngredientsCategory", "Items", "ItemsCategory", "Menu", "PlateCategory","PlateIngredients", "Plates", "ShoppingList" -Context MenuListDBContext -ContextDir Model -Force
+
+3. Cleanup of DBcontext class:
+  - Remove the parameterless constructor
+  - Remove the 'OnConfiguring' function and configute in 'Startup'
