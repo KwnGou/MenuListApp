@@ -26,16 +26,28 @@ namespace MenuListApp.Server.Controllers
 
         // GET: api/Items
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Items_GridDTO>>> GetItems()
+        public async Task<ActionResult<IEnumerable<Items_GridDTO>>> GetItems([FromQuery] int? categoryId)
         {
             if (_context.Items == null)
             {
                 return NotFound();
             }
 
-            var result = await _context.Items
-            .Include(c => c.ItemCategoryNavigation)
-            .ToListAsync();
+            List<Item> result;
+
+            if (categoryId.HasValue)
+            {
+                result = await _context.Items
+                    .Where(i => i.ItemCategory == categoryId.Value)
+                    .Include(c => c.ItemCategoryNavigation)
+                    .ToListAsync();
+            }
+            else {
+                result = await _context.Items
+                    .Include(c => c.ItemCategoryNavigation)
+                    .ToListAsync();
+            }
+
 
             var mapped = _mapper.Map<IEnumerable<Items_GridDTO>>(result);
 

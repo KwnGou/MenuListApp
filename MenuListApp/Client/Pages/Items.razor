@@ -1,0 +1,151 @@
+﻿@page "/items"
+@inject HttpClient Http
+@inject NotificationService NotificationSvc
+
+
+<PageTitle>Items</PageTitle>
+
+<h1>Items</h1>
+
+@if (items == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenDataGrid @ref="@itemsGrid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" 
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                EditMode="DataGridEditMode.Single" Data="@items" TItem="Items_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+        <Columns>
+            <RadzenDataGridColumn TItem="Items_GridDTO" Title="Item name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Items_GridDTO.Name))">
+                <EditTemplate Context="item">
+                    <RadzenTextBox @bind-Value="item.Name" Name="Item Name" Style="width:100%; display: block;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Items_GridDTO" Title="Item category" TextAlign="TextAlign.Center" Property="@(nameof(Items_GridDTO.ItemCategory))" Filterable="@true">
+                <Template Context="dto">
+                    @dto.ItemCategoryName
+                </Template>
+                <EditTemplate Context="dto">
+                    <RadzenDropDown TValue="int" Multiple="@false" Data="@itemsCategories" Placeholder="Select category" 
+                        TextProperty="@(nameof(ItemsCategories_GridDTO.Name))" ValueProperty="@(nameof(ItemsCategories_GridDTO.Id))"
+                                @bind-Value="@dto.ItemCategory" />
+                </EditTemplate>
+                <FilterTemplate Context="dto">
+                    <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@itemsCategories" 
+                                TextProperty="@(nameof(ItemsCategories_GridDTO.Name))" ValueProperty="@(nameof(ItemsCategories_GridDTO.Id))" 
+                                @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()"/>
+                </FilterTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Items_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                <Template Context="item">
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => EditItem(item)" />
+                </Template>
+                <EditTemplate Context="item">
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => SaveItem(item)" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => itemsGrid.CancelEditRow(item))" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Items_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                <Template Context="item">
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteItem(item)" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => AddItem()" />
+}
+
+@code {
+    private RadzenDataGrid<Items_GridDTO> itemsGrid;
+    private ItemsCategories_GridDTO[] itemsCategories;
+    private Items_GridDTO[] items;
+
+    // category filter
+    private int? catFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        itemsCategories = await Http.GetFromJsonAsync<ItemsCategories_GridDTO[]>("api/ItemsCategories");
+        items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
+    }
+
+    async Task EditItem(Items_GridDTO item)
+    {
+        await itemsGrid.EditRow(item);
+    }
+
+    private void AddItem()
+    {
+        itemsGrid.InsertRow(new Items_GridDTO());
+    }
+
+    private void SaveItem(Items_GridDTO item)
+    {
+        itemsGrid.UpdateRow(item);
+    }
+
+    private async Task OnCategoryFilterChange()
+    {
+        itemsGrid.Reset();
+        items = await Http.GetFromJsonAsync<Items_GridDTO[]>($"api/Items?categoryId={catFilter}");
+    }
+
+    private async Task OnCreateRow(Items_GridDTO item)
+    {
+        var res = await Http.PostAsJsonAsync<Items_GridDTO>("api/Items", item);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+            itemsGrid.CancelEditRow(item);
+        }
+        //reload always
+        items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
+        StateHasChanged();
+    }
+
+    private async Task OnUpdateRow(Items_GridDTO item)
+    {
+        var res = await Http.PutAsJsonAsync<Items_GridDTO>($"api/Items/{item.Id}", item);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        // reload always
+        items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
+        StateHasChanged();
+    }
+
+    private async Task DeleteItem(Items_GridDTO item)
+    {
+        var res = await Http.DeleteAsync($"api/Items/{item.Id}");
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Deletion failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        else
+        {
+            items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
+            StateHasChanged();
+        }
+
+    }
+
+
+}
