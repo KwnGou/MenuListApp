@@ -26,15 +26,28 @@ namespace MenuListApp.Server.Controllers
 
         // GET: api/Ingredients
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Ingredient_GridDTO>>> GetIngredients()
+        public async Task<ActionResult<IEnumerable<Ingredient_GridDTO>>> GetIngredients([FromQuery] int? categoryId)
         {
             if (_context.Ingredients == null)
             {
                 return NotFound();
             }
-            var result = await _context.Ingredients
-                .Include(c => c.IngredientCategory)
-                .ToListAsync();
+
+            List<Ingredient> result;
+
+            if (categoryId.HasValue)
+            {
+                result = await _context.Ingredients
+                    .Where(i => i.IngredientCategory == categoryId.Value)
+                    .Include(c => c.IngredientCategoryNavigation)
+                    .ToListAsync();
+            }
+            else
+            {
+                result = await _context.Ingredients
+                    .Include(c => c.IngredientCategoryNavigation)
+                    .ToListAsync();
+            }
 
             var mapped = _mapper.Map<IEnumerable<Ingredient_GridDTO>>(result);
 
@@ -147,7 +160,7 @@ namespace MenuListApp.Server.Controllers
 
             if (dto.IngredientCategory > 0)
             {
-                if (!(await _context.Ingredients.AnyAsync(c => c.Id == dto.IngredientCategory)))
+                if (!(await _context.IngredientsCategories.AnyAsync(c => c.Id == dto.IngredientCategory)))
                 {
                     return BadRequest("Specified category does not exist");
                 }
@@ -169,7 +182,7 @@ namespace MenuListApp.Server.Controllers
 
             var mapped = _mapper.Map<Ingredient_GridDTO>(entity);
 
-            return CreatedAtAction("GetItem", new { id = mapped.Id }, mapped);
+            return CreatedAtAction("GetIngredient", new { id = mapped.Id }, mapped);
         }
 
         // DELETE: api/Ingredients/5
@@ -195,7 +208,7 @@ namespace MenuListApp.Server.Controllers
 
         private bool IngredientExists(int id)
         {
-            return _context.Ingredients.Any(e => e.Id == id);
+            return _context.Ingredients.Any(i => i.Id == id);
         }
     }
 }

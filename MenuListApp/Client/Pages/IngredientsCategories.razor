@@ -1,0 +1,123 @@
+﻿@page "/ingredientsCategories"
+@inject HttpClient Http
+@inject NotificationService NotificationSvc
+
+
+<PageTitle>Ingredients Categories</PageTitle>
+
+<h1>Ingredients Categories</h1>
+
+@if (ingredientsCategories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenDataGrid @ref="@ingredientsCategoriesGrid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" ColumnWidth="100px"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                EditMode="DataGridEditMode.Single" Data="@ingredientsCategories" TItem="IngredientCategory_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+        <Columns>
+            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Title="Category name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(IngredientCategory_GridDTO.Name))">
+                <EditTemplate Context="category">
+                    <RadzenTextBox @bind-Value="category.Name" Name="Category Name" Style="width:100%; display: block;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
+                <Template Context="dto">
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await EditCategory(dto)" />
+                </Template>
+                <EditTemplate Context="dto">
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await SaveCategory(dto)" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="(args) => ingredientsCategoriesGrid.CancelEditRow(dto)" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
+                <Template Context="dto">
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteCategory(dto)" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Category" ButtonStyle="ButtonStyle.Success" Click="(args) => AddCategory()" />
+}
+
+@code {
+    private RadzenDataGrid<IngredientCategory_GridDTO> ingredientsCategoriesGrid;
+    private IngredientCategory_GridDTO[] ingredientsCategories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+    }
+
+    private async Task EditCategory(IngredientCategory_GridDTO category)
+    {
+        await ingredientsCategoriesGrid.EditRow(category);
+    }
+
+    private async Task AddCategory()
+    {
+        await ingredientsCategoriesGrid.InsertRow(new IngredientCategory_GridDTO());
+    }
+
+    private async Task SaveCategory(IngredientCategory_GridDTO category)
+    {
+        await ingredientsCategoriesGrid.UpdateRow(category);
+    }
+
+    private async Task OnCreateRow(IngredientCategory_GridDTO category)
+    {
+        var res = await Http.PostAsJsonAsync<IngredientCategory_GridDTO>("api/IngredientsCategories", category);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+            ingredientsCategoriesGrid.CancelEditRow(category);
+        }
+        //reload always
+        ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+        StateHasChanged();
+    }
+
+    private async Task OnUpdateRow(IngredientCategory_GridDTO category)
+    {
+        var res = await Http.PutAsJsonAsync<IngredientCategory_GridDTO>($"api/IngredientsCategories/{category.Id}", category);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        // reload always
+        ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+        StateHasChanged();
+    }
+
+    private async Task DeleteCategory(IngredientCategory_GridDTO category)
+    {
+        var res = await Http.DeleteAsync($"api/IngredientsCategories/{category.Id}");
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Deletion failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        else
+        {
+            ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+            StateHasChanged();
+        }
+
+    }
+}

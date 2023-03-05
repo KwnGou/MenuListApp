@@ -21,7 +21,7 @@ namespace MenuListApp.Server.Model
             CreateMap<Ingredient, Ingredient_GridDTO>()
                 .ForMember(dest => dest.IngredientCategoryName, opt => opt.MapFrom(src => src.IngredientCategoryNavigation.Name));
 
-            CreateMap<Ingredient, Ingredient_GridDTO>();
+            CreateMap<Ingredient_GridDTO, Ingredient>();
 
         }
 

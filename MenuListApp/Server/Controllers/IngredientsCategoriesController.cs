@@ -176,7 +176,7 @@ namespace MenuListApp.Server.Controllers
 
         private bool IngredientsCategoryExists(int id)
         {
-            return _context.IngredientsCategories.Any(e => e.Id == id);
+            return _context.IngredientsCategories.Any(i => i.Id == id);
         }
     }
 }

@@ -18,6 +18,5 @@ namespace MenuListApp.Shared.MenuListDTOs
 
         public byte[]? Rowversion { get; set; }
 
-        //public virtual ICollection<Ingredient> Ingredients { get; set; }
     }
 }

@@ -14,15 +14,12 @@ namespace MenuListApp.Shared.MenuListDTOs
 
         public int IngredientCategory { get; set; }
 
-        public string IngredientCategoryName { get; set; }
+        public string? IngredientCategoryName { get; set; }
 
         [Required]
         [MaxLength(20)]
         public string Name { get; set; } = null!;
 
         public byte[]? Rowversion { get; set; }
-
-        //public virtual IngredientsCategory IngredientCategoryNavigation { get; set; } = null!;
-        //public virtual ICollection<PlateIngredient> PlateIngredients { get; set; }
     }
 }
