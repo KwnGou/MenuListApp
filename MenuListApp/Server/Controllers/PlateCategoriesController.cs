@@ -5,72 +5,67 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyModel = MenuListApp.Server.Model;
+using MenuListApp.Server.Model;
 using AutoMapper;
 using MenuListApp.Shared.MenuListDTOs;
-using MenuListApp.Server.Model;
 
 namespace MenuListApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ItemsCategoriesController : ControllerBase
+    public class PlateCategoriesController : ControllerBase
     {
-        //private readonly MenuListDBContext _context;
-
-        private readonly MyModel.MenuListDBContext _context;
+        private readonly MenuListDBContext _context;
         private readonly IMapper _mapper;
 
-        public ItemsCategoriesController(MyModel.MenuListDBContext context, IMapper mapper)
+        public PlateCategoriesController(MenuListDBContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        // GET: api/ItemsCategories
+        // GET: api/PlateCategories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItemsCategories_GridDTO>>> GetItemsCategories()
+        public async Task<ActionResult<IEnumerable<PlateCategory_GridDTO>>> GetPlateCategories()
         {
-
-            if (_context.ItemsCategories == null)
+            if (_context.PlateCategories == null)
             {
                 return NotFound();
             }
 
-            var result = await _context.ItemsCategories
+            var result = await _context.PlateCategories
                    .ToListAsync();
 
-            var mapped = _mapper.Map<IEnumerable<ItemsCategories_GridDTO>>(result);
+            var mapped = _mapper.Map<IEnumerable<PlateCategory_GridDTO>>(result);
 
             return Ok(mapped);
-
         }
 
-        // GET: api/ItemsCategories/5
+        // GET: api/PlateCategories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ItemsCategories_GridDTO>> GetItemsCategory(int id)
+        public async Task<ActionResult<PlateCategory_GridDTO>> GetPlateCategory(int id)
         {
-            if (_context.ItemsCategories == null)
+            if (_context.PlateCategories == null)
             {
                 return NotFound();
             }
 
-            var itemsCategory = await _context.ItemsCategories.FindAsync(id);
+            var plateCategory = await _context.PlateCategories.FindAsync(id);
 
-            if (itemsCategory == null)
+            if (plateCategory == null)
             {
                 return NotFound();
             }
 
-            var mapped = _mapper.Map<ItemsCategories_GridDTO>(itemsCategory);
+            var mapped = _mapper.Map<PlateCategory_GridDTO>(plateCategory);
 
             return Ok(mapped);
         }
 
-        // PUT: api/ItemsCategories/5
+        // PUT: api/PlateCategories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutItemsCategory(int id, ItemsCategories_GridDTO dto)
+        public async Task<ActionResult> PutPlateCategory(int id, PlateCategory_GridDTO dto)
         {
             if (id != dto.Id)
             {
@@ -79,7 +74,7 @@ namespace MenuListApp.Server.Controllers
 
             // Data validation
 
-            if (!(await _context.ItemsCategories.AnyAsync(c => c.Id == dto.Id)))
+            if (!(await _context.PlateCategories.AnyAsync(c => c.Id == dto.Id)))
             {
                 return BadRequest("Specified category id does not exist");
             }
@@ -91,12 +86,12 @@ namespace MenuListApp.Server.Controllers
 
             dto.Name.Trim();
 
-            if (await _context.ItemsCategories.AnyAsync(c => c.Name == dto.Name))
+            if (await _context.PlateCategories.AnyAsync(c => c.Name == dto.Name))
             {
                 return BadRequest("Specified category name already exist");
             }
 
-            var entity = _mapper.Map<ItemsCategory>(dto);
+            var entity = _mapper.Map<PlateCategory>(dto);
 
             _context.Entry(entity).State = EntityState.Modified;
 
@@ -106,7 +101,7 @@ namespace MenuListApp.Server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ItemsCategoryExists(id))
+                if (!PlateCategoryExists(id))
                 {
                     return NotFound();
                 }
@@ -119,14 +114,14 @@ namespace MenuListApp.Server.Controllers
             return NoContent();
         }
 
-        // POST: api/ItemsCategories
+        // POST: api/PlateCategories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ItemsCategories_GridDTO>> PostItemsCategory(ItemsCategories_GridDTO dto)
+        public async Task<ActionResult<PlateCategory_GridDTO>> PostPlateCategory(PlateCategory_GridDTO dto)
         {
-            if (_context.ItemsCategories == null)
+            if (_context.PlateCategories == null)
             {
-                return Problem("Entity set 'MenuListDBContext.ItemsCategories'  is null.");
+                return Problem("Entity set 'MenuListDBContext.PlateCategories'  is null.");
             }
             // Validation
             if (string.IsNullOrWhiteSpace(dto.Name))
@@ -136,53 +131,51 @@ namespace MenuListApp.Server.Controllers
 
             dto.Name.Trim();
 
-            if (await _context.ItemsCategories.AnyAsync(c => c.Name == dto.Name))
+            if (await _context.PlateCategories.AnyAsync(c => c.Name == dto.Name))
             {
                 return BadRequest("Specified category name already exist");
             }
 
-            var entity = _mapper.Map<ItemsCategory>(dto);
+            var entity = _mapper.Map<PlateCategory>(dto);
 
-            _context.ItemsCategories.Add(entity);
+            _context.PlateCategories.Add(entity);
 
             await _context.SaveChangesAsync();
 
-            var mapped = _mapper.Map<ItemsCategories_GridDTO>(entity);
+            var mapped = _mapper.Map<PlateCategory_GridDTO>(entity);
 
-            return CreatedAtAction("GetItemsCategory", new { id = mapped.Id }, mapped);
-
+            return CreatedAtAction("GetPlateCategory", new { id = mapped.Id }, mapped);
         }
 
-        // DELETE: api/ItemsCategories/5
+        // DELETE: api/PlateCategories/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteItemsCategory(int id)
+        public async Task<IActionResult> DeletePlateCategory(int id)
         {
-            if (_context.ItemsCategories == null)
+            if (_context.PlateCategories == null)
             {
                 return NotFound();
             }
 
-            var itemsCategory = await _context.ItemsCategories.FindAsync(id);
-            if (itemsCategory == null)
+            var plateCategories = await _context.PlateCategories.FindAsync(id);
+            if (plateCategories == null)
             {
                 return NotFound();
             }
 
-            if (await _context.Items.AnyAsync(i => i.Id == id))
+            if (await _context.Plates.AnyAsync(p => p.Id == id))
             {
                 return BadRequest("Category is in use");
             }
 
-            _context.ItemsCategories.Remove(itemsCategory);
+            _context.PlateCategories.Remove(plateCategories);
             await _context.SaveChangesAsync();
 
             return NoContent();
-
         }
 
-        private bool ItemsCategoryExists(int id)
+        private bool PlateCategoryExists(int id)
         {
-            return _context.ItemsCategories.Any(e => e.Id == id);
+            return _context.PlateCategories.Any(p => p.Id == id);
         }
     }
 }

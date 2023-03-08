@@ -13,13 +13,13 @@
 }
 else
 {
-    <RadzenDataGrid @ref="@itemsGrid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" 
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" 
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@items" TItem="Items_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
             <RadzenDataGridColumn TItem="Items_GridDTO" Title="Item name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Items_GridDTO.Name))">
-                <EditTemplate Context="item">
-                    <RadzenTextBox @bind-Value="item.Name" Name="Item Name" Style="width:100%; display: block;" />
+                <EditTemplate Context="dto">
+                    <RadzenTextBox @bind-Value="dto.Name" Name="Item Name" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Items_GridDTO" Title="Item category" TextAlign="TextAlign.Center" Property="@(nameof(Items_GridDTO.ItemCategory))" Filterable="@true">
@@ -38,27 +38,27 @@ else
                 </FilterTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Items_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
-                <Template Context="item">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => EditItem(item)" />
+                <Template Context="dto">
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
                 </Template>
-                <EditTemplate Context="item">
-                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => SaveItem(item)" />
-                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => itemsGrid.CancelEditRow(item))" />
+                <EditTemplate Context="dto">
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => Save(dto)" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => grid.CancelEditRow(dto))" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Items_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
-                <Template Context="item">
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteItem(item)" />
+                <Template Context="dto">
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
     <br />
-    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => AddItem()" />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
 }
 
 @code {
-    private RadzenDataGrid<Items_GridDTO> itemsGrid;
+    private RadzenDataGrid<Items_GridDTO> grid;
     private ItemsCategories_GridDTO[] itemsCategories;
     private Items_GridDTO[] items;
 
@@ -71,30 +71,30 @@ else
         items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
     }
 
-    async Task EditItem(Items_GridDTO item)
+    async Task Edit(Items_GridDTO dto)
     {
-        await itemsGrid.EditRow(item);
+        await grid.EditRow(dto);
     }
 
-    private void AddItem()
+    private void Add()
     {
-        itemsGrid.InsertRow(new Items_GridDTO());
+        grid.InsertRow(new Items_GridDTO());
     }
 
-    private void SaveItem(Items_GridDTO item)
+    private void Save(Items_GridDTO dto)
     {
-        itemsGrid.UpdateRow(item);
+        grid.UpdateRow(dto);
     }
 
     private async Task OnCategoryFilterChange()
     {
-        itemsGrid.Reset();
+        grid.Reset();
         items = await Http.GetFromJsonAsync<Items_GridDTO[]>($"api/Items?categoryId={catFilter}");
     }
 
-    private async Task OnCreateRow(Items_GridDTO item)
+    private async Task OnCreateRow(Items_GridDTO dto)
     {
-        var res = await Http.PostAsJsonAsync<Items_GridDTO>("api/Items", item);
+        var res = await Http.PostAsJsonAsync<Items_GridDTO>("api/Items", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -103,16 +103,16 @@ else
                 "Saving failed",
                 await res.Content.ReadAsStringAsync(),
                 8000);
-            itemsGrid.CancelEditRow(item);
+            grid.CancelEditRow(dto);
         }
         //reload always
         items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
         StateHasChanged();
     }
 
-    private async Task OnUpdateRow(Items_GridDTO item)
+    private async Task OnUpdateRow(Items_GridDTO dto)
     {
-        var res = await Http.PutAsJsonAsync<Items_GridDTO>($"api/Items/{item.Id}", item);
+        var res = await Http.PutAsJsonAsync<Items_GridDTO>($"api/Items/{dto.Id}", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -127,9 +127,9 @@ else
         StateHasChanged();
     }
 
-    private async Task DeleteItem(Items_GridDTO item)
+    private async Task Delete(Items_GridDTO dto)
     {
-        var res = await Http.DeleteAsync($"api/Items/{item.Id}");
+        var res = await Http.DeleteAsync($"api/Items/{dto.Id}");
 
         if (!res.IsSuccessStatusCode)
         {

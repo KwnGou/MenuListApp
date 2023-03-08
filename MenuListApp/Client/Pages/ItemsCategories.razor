@@ -13,37 +13,37 @@
 }
 else
 {
-    <RadzenDataGrid @ref="@itemsCategoriesGrid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" ColumnWidth="100px"
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" ColumnWidth="100px"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@itemsCategories" TItem="ItemsCategories_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
             <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Title="Category name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(ItemsCategories_GridDTO.Name))">
-                <EditTemplate Context="category">
-                    <RadzenTextBox @bind-Value="category.Name" Name="Category Name" Style="width:100%; display: block;" />
+                <EditTemplate Context="dto">
+                    <RadzenTextBox @bind-Value="dto.Name" Name="Category Name" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center" >
                 <Template Context="dto">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await EditCategory(dto)" />
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await Edit(dto)" />
                 </Template>
                 <EditTemplate Context="dto">
-                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await SaveCategory(dto)" />
-                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="(args) => itemsCategoriesGrid.CancelEditRow(dto)" />
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await Save(dto)" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="(args) => grid.CancelEditRow(dto)" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteCategory(dto)" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
     <br />
-    <RadzenButton Icon="add_circle_outline" Text="Add New Category" ButtonStyle="ButtonStyle.Success" Click="(args) => AddCategory()" />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Category" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
 }
 
 @code {
-    private RadzenDataGrid<ItemsCategories_GridDTO> itemsCategoriesGrid;
+    private RadzenDataGrid<ItemsCategories_GridDTO> grid;
     private ItemsCategories_GridDTO[] itemsCategories;
     
     protected override async Task OnInitializedAsync()
@@ -51,24 +51,24 @@ else
         itemsCategories = await Http.GetFromJsonAsync<ItemsCategories_GridDTO[]>("api/ItemsCategories");
     }
 
-    private async Task EditCategory(ItemsCategories_GridDTO category)
+    private async Task Edit(ItemsCategories_GridDTO dto)
     {
-        await itemsCategoriesGrid.EditRow(category);
+        await grid.EditRow(dto);
     }
 
-    private async Task AddCategory()
+    private async Task Add()
     {
-        await itemsCategoriesGrid.InsertRow(new ItemsCategories_GridDTO());
+        await grid.InsertRow(new ItemsCategories_GridDTO());
     }
 
-    private async Task SaveCategory(ItemsCategories_GridDTO category)
+    private async Task Save(ItemsCategories_GridDTO dto)
     {
-        await itemsCategoriesGrid.UpdateRow(category);
+        await grid.UpdateRow(dto);
     }
 
-    private async Task OnCreateRow(ItemsCategories_GridDTO category)
+    private async Task OnCreateRow(ItemsCategories_GridDTO dto)
     {
-        var res = await Http.PostAsJsonAsync<ItemsCategories_GridDTO>("api/ItemsCategories", category);
+        var res = await Http.PostAsJsonAsync<ItemsCategories_GridDTO>("api/ItemsCategories", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -77,16 +77,16 @@ else
                 "Saving failed",
                 await res.Content.ReadAsStringAsync(),
                 8000);
-            itemsCategoriesGrid.CancelEditRow(category);
+            grid.CancelEditRow(dto);
         }
         //reload always
         itemsCategories = await Http.GetFromJsonAsync<ItemsCategories_GridDTO[]>("api/ItemsCategories");
         StateHasChanged();
     }
 
-    private async Task OnUpdateRow(ItemsCategories_GridDTO category)
+    private async Task OnUpdateRow(ItemsCategories_GridDTO dto)
     {
-        var res = await Http.PutAsJsonAsync<ItemsCategories_GridDTO>($"api/ItemsCategories/{category.Id}", category);
+        var res = await Http.PutAsJsonAsync<ItemsCategories_GridDTO>($"api/ItemsCategories/{dto.Id}", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -101,9 +101,9 @@ else
         StateHasChanged();
     }
 
-    private async Task DeleteCategory(ItemsCategories_GridDTO category)
+    private async Task Delete(ItemsCategories_GridDTO dto)
     {
-        var res = await Http.DeleteAsync($"api/ItemsCategories/{category.Id}");
+        var res = await Http.DeleteAsync($"api/ItemsCategories/{dto.Id}");
 
         if (!res.IsSuccessStatusCode)
         {

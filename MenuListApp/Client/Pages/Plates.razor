@@ -1,0 +1,155 @@
+﻿@page "/plates"
+@inject HttpClient Http
+@inject NotificationService NotificationSvc
+
+
+<PageTitle>Plates</PageTitle>
+
+<h1>Plates</h1>
+
+@if (plates == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                EditMode="DataGridEditMode.Single" Data="@plates" TItem="Plate_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+        <Columns>
+            <RadzenDataGridColumn TItem="Plate_GridDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_GridDTO.Name))">
+                <EditTemplate Context="dto">
+                    <RadzenTextBox @bind-Value="dto.Name" Name="Plate Name" Style="width:100%; display: block;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Plate_GridDTO" Title="Plate category" TextAlign="TextAlign.Center" Property="@(nameof(Plate_GridDTO.PlateCategory))" Filterable="@true">
+                <Template Context="dto">
+                    @dto.PlateCategoryName
+                </Template>
+                <EditTemplate Context="dto">
+                    <RadzenDropDown TValue="int" Multiple="@false" Data="@platesCategories" Placeholder="Select category"
+                                TextProperty="@(nameof(PlateCategory_GridDTO.Name))" ValueProperty="@(nameof(PlateCategory_GridDTO.Id))"
+                                @bind-Value="@dto.PlateCategory" />
+                </EditTemplate>
+                @*<EditTemplate Context="dto">
+            <RadzenTextBox TValue="string"  Data="@platesCategories" Placeholder="Ente new category"
+            TextProperty="@(nameof(PlateCategory_GridDTO.Name))"
+            @bind-Value="@dto.dtoCategoryName" />
+            </EditTemplate>*@
+                <FilterTemplate Context="dto">
+                    <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@platesCategories"
+                                TextProperty="@(nameof(PlateCategory_GridDTO.Name))" ValueProperty="@(nameof(PlateCategory_GridDTO.Id))"
+                                @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()" />
+                </FilterTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Plate_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                <Template Context="dto">
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
+                </Template>
+                <EditTemplate Context="dto">
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => Save(dto)" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => grid.CancelEditRow(dto))" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Plate_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                <Template Context="dto">
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
+}
+
+@code {
+    private RadzenDataGrid<Plate_GridDTO> grid;
+    private PlateCategory_GridDTO[] platesCategories;
+    private Plate_GridDTO[] plates;
+
+    // category filter
+    private int? catFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        platesCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/plateCategories");
+        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+    }
+
+    async Task Edit(Plate_GridDTO dto)
+    {
+        await grid.EditRow(dto);
+    }
+
+    private void Add()
+    {
+        grid.InsertRow(new Plate_GridDTO());
+    }
+
+    private void Save(Plate_GridDTO dto)
+    {
+        grid.UpdateRow(dto);
+    }
+
+    private async Task OnCategoryFilterChange()
+    {
+        grid.Reset();
+        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>($"api/plates?categoryId={catFilter}");
+    }
+
+    private async Task OnCreateRow(Plate_GridDTO dto)
+    {
+        Console.WriteLine("In OnCreateRow");
+        var res = await Http.PostAsJsonAsync<Plate_GridDTO>("api/plates", dto);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+            grid.CancelEditRow(dto);
+        }
+        //reload always
+        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+        StateHasChanged();
+    }
+
+    private async Task OnUpdateRow(Plate_GridDTO dto)
+    {
+        var res = await Http.PutAsJsonAsync<Plate_GridDTO>($"api/plates/{dto.Id}", dto);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        // reload always
+        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+        StateHasChanged();
+    }
+
+    private async Task Delete(Plate_GridDTO dto)
+    {
+        var res = await Http.DeleteAsync($"api/plates/{dto.Id}");
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Deletion failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        else
+        {
+            plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+            StateHasChanged();
+        }
+
+    }
+}

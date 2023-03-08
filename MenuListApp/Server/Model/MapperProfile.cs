@@ -23,6 +23,14 @@ namespace MenuListApp.Server.Model
 
             CreateMap<Ingredient_GridDTO, Ingredient>();
 
+            CreateMap<PlateCategory, PlateCategory_GridDTO>()
+                .ReverseMap();
+
+            CreateMap<Plate, Plate_GridDTO>()
+                .ForMember(dest => dest.PlateCategoryName, opt => opt.MapFrom(src => src.PlateCategoryNavigation.Name));
+
+            CreateMap<Plate_GridDTO, Plate>();
+
         }
 
     }

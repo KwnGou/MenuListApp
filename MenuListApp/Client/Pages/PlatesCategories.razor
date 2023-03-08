@@ -1,13 +1,13 @@
-﻿@page "/ingredientsCategories"
+﻿@page "/platesCategories"
 @inject HttpClient Http
 @inject NotificationService NotificationSvc
 
 
-<PageTitle>Ingredients Categories</PageTitle>
+<PageTitle>Plates Categories</PageTitle>
 
-<h1>Ingredients Categories</h1>
+<h1>Plates Categories</h1>
 
-@if (ingredientsCategories == null)
+@if (platesCategories == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -15,14 +15,14 @@ else
 {
     <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" ColumnWidth="100px"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
-                EditMode="DataGridEditMode.Single" Data="@ingredientsCategories" TItem="IngredientCategory_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                EditMode="DataGridEditMode.Single" Data="@platesCategories" TItem="PlateCategory_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
-            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Title="Category name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(IngredientCategory_GridDTO.Name))">
+            <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Title="Category name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(PlateCategory_GridDTO.Name))">
                 <EditTemplate Context="dto">
                     <RadzenTextBox @bind-Value="dto.Name" Name="Category Name" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
                     <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await Edit(dto)" />
                 </Template>
@@ -31,9 +31,9 @@ else
                     <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="(args) => grid.CancelEditRow(dto)" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteCategory(dto)" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -43,32 +43,32 @@ else
 }
 
 @code {
-    private RadzenDataGrid<IngredientCategory_GridDTO> grid;
-    private IngredientCategory_GridDTO[] ingredientsCategories;
+    private RadzenDataGrid<PlateCategory_GridDTO> grid;
+    private PlateCategory_GridDTO[] platesCategories;
 
     protected override async Task OnInitializedAsync()
     {
-        ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+        platesCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/PlateCategories");
     }
 
-    private async Task Edit(IngredientCategory_GridDTO dto)
+    private async Task Edit(PlateCategory_GridDTO dto)
     {
         await grid.EditRow(dto);
     }
 
     private async Task Add()
     {
-        await grid.InsertRow(new IngredientCategory_GridDTO());
+        await grid.InsertRow(new PlateCategory_GridDTO());
     }
 
-    private async Task Save(IngredientCategory_GridDTO dto)
+    private async Task Save(PlateCategory_GridDTO dto)
     {
         await grid.UpdateRow(dto);
     }
 
-    private async Task OnCreateRow(IngredientCategory_GridDTO dto)
+    private async Task OnCreateRow(PlateCategory_GridDTO dto)
     {
-        var res = await Http.PostAsJsonAsync<IngredientCategory_GridDTO>("api/IngredientsCategories", dto);
+        var res = await Http.PostAsJsonAsync<PlateCategory_GridDTO>("api/PlateCategories", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -80,13 +80,13 @@ else
             grid.CancelEditRow(dto);
         }
         //reload always
-        ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+        platesCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/PlateCategories");
         StateHasChanged();
     }
 
-    private async Task OnUpdateRow(IngredientCategory_GridDTO dto)
+    private async Task OnUpdateRow(PlateCategory_GridDTO dto)
     {
-        var res = await Http.PutAsJsonAsync<IngredientCategory_GridDTO>($"api/IngredientsCategories/{dto.Id}", dto);
+        var res = await Http.PutAsJsonAsync<PlateCategory_GridDTO>($"api/PlateCategories/{dto.Id}", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -97,13 +97,13 @@ else
                 8000);
         }
         // reload always
-        ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+        platesCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/PlateCategories");
         StateHasChanged();
     }
 
-    private async Task Delete(IngredientCategory_GridDTO dto)
+    private async Task DeleteCategory(PlateCategory_GridDTO dto)
     {
-        var res = await Http.DeleteAsync($"api/IngredientsCategories/{dto.Id}");
+        var res = await Http.DeleteAsync($"api/PlateCategories/{dto.Id}");
 
         if (!res.IsSuccessStatusCode)
         {
@@ -115,7 +115,7 @@ else
         }
         else
         {
-            ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
+            platesCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/PlateCategories");
             StateHasChanged();
         }
 
