@@ -31,11 +31,11 @@ else
                         TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))"
                                 @bind-Value="@dto.IngredientCategory" />
                 </EditTemplate>
-                @*<EditTemplate Context="dto">
-                    <RadzenTextBox TValue="string"  Data="@ingredientsCategories" Placeholder="Ente new category"
-                                TextProperty="@(nameof(IngredientCategory_GridDTO.Name))"
-                               @bind-Value="@dto.IngredientCategoryName" />
-                </EditTemplate>*@
+                @*<RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient category" TextAlign="TextAlign.Center" Property="@(nameof(Ingredient_GridDTO.IngredientCategory))" Filterable="@true">
+                    <Template Context="newCat">
+                    @newCat.IngredientCategoryName
+                    </Template>
+                </RadzenDataGridColumn>*@
                 <FilterTemplate Context="dto">
                     <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@ingredientsCategories" 
                                 TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))" 

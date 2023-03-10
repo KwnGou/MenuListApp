@@ -138,7 +138,7 @@ namespace MenuListApp.Server.Controllers
         {
             if (_context.Items == null)
             {
-                return Problem("Entity set 'MenuListDBContext.Item'  is null.");
+                return Problem("Entity set 'MenuListDBContext.Items'  is null.");
             }
             var entity = _mapper.Map<Item>(dto);
 

@@ -18,7 +18,7 @@ namespace MenuListApp.Shared.MenuListDTOs
         [MaxLength(30)]
         public string Name { get; set; } = null!;
 
-        public string ItemCategoryName { get; set; }
+        public string? ItemCategoryName { get; set; }
 
         public byte[]? Rowversion { get; set; }
     }
