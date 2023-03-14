@@ -31,6 +31,12 @@ namespace MenuListApp.Server.Model
 
             CreateMap<Plate_GridDTO, Plate>();
 
+            CreateMap<Menu, Menu_GridDTO>()
+                .ForMember(dest => dest.MenuPlateName, opt => opt.MapFrom(src => src.PlateNavigation.Name));
+
+            CreateMap<Menu_GridDTO, Menu>();
+
+
         }
 
     }
