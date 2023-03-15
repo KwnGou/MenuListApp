@@ -57,7 +57,7 @@ namespace MenuListApp.Server.Controllers
 
         // GET: api/Menus/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Menu_GridDTO>>> GetMenu(int id)
+        public async Task<ActionResult<Menu_GridDTO>> GetMenu(int id)
         {
             if (_context.Menus == null)
             {
@@ -89,12 +89,12 @@ namespace MenuListApp.Server.Controllers
 
             // Data validation
 
-            if (!await _context.Menus.AnyAsync(m => m.Id == dto.Id))
+            if (!(await _context.Menus.AnyAsync(m => m.Id == dto.Id)))
             {
                 return BadRequest("Specified menu id does not exist");
             }
 
-            if (!await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate))
+            if (!(await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate)))
             {
                 return BadRequest("Specified plate id does not exist");
             }
@@ -148,16 +148,16 @@ namespace MenuListApp.Server.Controllers
                 return BadRequest("Menu id is in use");
             }
 
-            if (!await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate))
-            {
-                return BadRequest("Specified plate id does not exist");
-            }
+            //if (!(await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate)))
+            //{
+            //    return BadRequest("Specified plate id does not exist");
+            //}
 
-            //check if date is before today
-            if (dto.Date < currentDate)
-            {
-                return BadRequest("Menu date is before today");
-            }
+            ////check if date is before today
+            //if (dto.Date < currentDate)
+            //{
+            //    return BadRequest("Menu date is before today");
+            //}
 
 
             var entity = _mapper.Map<Menu>(dto);
@@ -195,11 +195,6 @@ namespace MenuListApp.Server.Controllers
                 return NotFound();
             }
 
-            //if (await _context.Menus.AnyAsync(m => m.Id == id))
-            //{
-            //    return BadRequest("Menu is in use");
-            //}
-
             _context.Menus.Remove(menu);
             await _context.SaveChangesAsync();
 
@@ -208,7 +203,7 @@ namespace MenuListApp.Server.Controllers
 
         private bool MenuExists(int id)
         {
-            return _context.Menus.Any(e => e.Id == id);
+            return _context.Menus.Any(m => m.Id == id);
         }
     }
 }

@@ -31,11 +31,6 @@ else
                                 TextProperty="@(nameof(PlateCategory_GridDTO.Name))" ValueProperty="@(nameof(PlateCategory_GridDTO.Id))"
                                 @bind-Value="@dto.PlateCategory" />
                 </EditTemplate>
-                @*<EditTemplate Context="dto">
-            <RadzenTextBox TValue="string"  Data="@platesCategories" Placeholder="Ente new category"
-            TextProperty="@(nameof(PlateCategory_GridDTO.Name))"
-            @bind-Value="@dto.dtoCategoryName" />
-            </EditTemplate>*@
                 <FilterTemplate Context="dto">
                     <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@platesCategories"
                                 TextProperty="@(nameof(PlateCategory_GridDTO.Name))" ValueProperty="@(nameof(PlateCategory_GridDTO.Id))"
