@@ -16,24 +16,24 @@ else
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@menu" TItem="Menu_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
-            <RadzenDataGridColumn TItem="Menu_GridDTO" Title="Date" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Menu_GridDTO.Date))">
+            <RadzenDataGridColumn TItem="Menu_GridDTO" Title="Date" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Menu_GridDTO.Date))"
+                              FormatString="{0:d MMM yy}">
                 <EditTemplate Context="dto">
-                    <RadzenDatePicker @bind-Value="dto.Date" InitialViewDate="new DateTime(2023,03,01)" Name="Date" Style="width:100%; display: block;" />
+                    <RadzenDatePicker @bind-Value="dto.Date" Min=DateTime.Today Name="Date" Style="width:100%; display: block;" ShowTime="false" DateFormat="d MMM yy" />
                 </EditTemplate>
             </RadzenDataGridColumn> 
-            <RadzenDataGridColumn TItem="Menu_GridDTO" Title="Plate" TextAlign="TextAlign.Center" Property="@(nameof(Menu_GridDTO.Plate))" Filterable="@true"
-                              FormatString="{0:d MMM yy}">
+            <RadzenDataGridColumn TItem="Menu_GridDTO" Title="Plate" TextAlign="TextAlign.Center" Property="@(nameof(Menu_GridDTO.Plate))" Filterable="@true" >
                 <Template Context="dto">
                     @dto.MenuPlateName
                 </Template>
                 <EditTemplate Context="dto">
                     <RadzenDropDown TValue="int" Multiple="@false" Data="@plates" Placeholder="Select plate"
-                                TextProperty="@(nameof(Plate_GridDTO.Name))" ValueProperty="@(nameof(Plate_GridDTO.Id))"
+                                TextProperty="@(nameof(Plate_EditDTO.Name))" ValueProperty="@(nameof(Plate_EditDTO.Id))"
                                     FormatString="{0:d MMM yy}"  @bind-Value="@dto.Plate" />
                 </EditTemplate>
                 <FilterTemplate Context="dto">
                     <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@plates"
-                                TextProperty="@(nameof(Plate_GridDTO.Name))" ValueProperty="@(nameof(Plate_GridDTO.Id))"
+                                TextProperty="@(nameof(Plate_EditDTO.Name))" ValueProperty="@(nameof(Plate_EditDTO.Id))"
                                 @bind-Value="@plateFilter" Change="async (args) => await OnPlateFilterChange()" />
                 </FilterTemplate>
             </RadzenDataGridColumn>
@@ -61,7 +61,7 @@ else
 {
     private RadzenDataGrid<Menu_GridDTO> grid;
     private Menu_GridDTO[] menu;
-    private Plate_GridDTO[] plates;
+    private Plate_EditDTO[] plates;
     private DateTimeOffset currentDate = DateTimeOffset.Now;
 
     // plate filter
@@ -69,7 +69,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/Plates");
+        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/Plates");
         menu = await Http.GetFromJsonAsync<Menu_GridDTO[]>("api/Menus");
     }
 
@@ -80,7 +80,7 @@ else
 
     private async Task Add()
     {
-        await grid.InsertRow(new Menu_GridDTO());
+        await grid.InsertRow(new Menu_GridDTO() {Date = currentDate});
     }
 
     private async Task Save(Menu_GridDTO dto)

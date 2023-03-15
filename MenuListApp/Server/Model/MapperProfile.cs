@@ -3,9 +3,9 @@ using MenuListApp.Shared.MenuListDTOs;
 
 namespace MenuListApp.Server.Model
 {
-    public class MapperProfile : Profile 
+    public class MapperProfile : Profile
     {
-        public  MapperProfile()
+        public MapperProfile()
         {
             CreateMap<ItemsCategory, ItemsCategories_GridDTO>()
                 .ReverseMap();
@@ -26,17 +26,19 @@ namespace MenuListApp.Server.Model
             CreateMap<PlateCategory, PlateCategory_GridDTO>()
                 .ReverseMap();
 
-            CreateMap<Plate, Plate_GridDTO>()
+            CreateMap<Plate, Plate_EditDTO>()
                 .ForMember(dest => dest.PlateCategoryName, opt => opt.MapFrom(src => src.PlateCategoryNavigation.Name));
 
-            CreateMap<Plate_GridDTO, Plate>();
+            CreateMap<Plate_EditDTO, Plate>();
 
             CreateMap<Menu, Menu_GridDTO>()
                 .ForMember(dest => dest.MenuPlateName, opt => opt.MapFrom(src => src.PlateNavigation.Name));
 
             CreateMap<Menu_GridDTO, Menu>();
 
-
+            CreateMap<Plate, Plate_DetailsDTO>()
+                .ForMember(dest => dest.PlateCategoryName, opt => opt.MapFrom(src => src.PlateCategoryNavigation.Name))
+                .ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => src.PlateIngredients.Select(i => i.Ingredient)));
         }
 
     }

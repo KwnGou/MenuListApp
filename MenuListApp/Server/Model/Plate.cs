@@ -14,6 +14,7 @@ namespace MenuListApp.Server.Model
         public int Id { get; set; }
         public int PlateCategory { get; set; }
         public string Name { get; set; } = null!;
+        public string? Recipe { get; set; }
         public byte[]? Rowversion { get; set; }
 
         public virtual PlateCategory PlateCategoryNavigation { get; set; } = null!;

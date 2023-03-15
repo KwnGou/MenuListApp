@@ -15,14 +15,14 @@ else
 {
     <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
-                EditMode="DataGridEditMode.Single" Data="@plates" TItem="Plate_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                EditMode="DataGridEditMode.Single" Data="@plates" TItem="Plate_EditDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
-            <RadzenDataGridColumn TItem="Plate_GridDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_GridDTO.Name))">
+            <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_EditDTO.Name))">
                 <EditTemplate Context="dto">
                     <RadzenTextBox @bind-Value="dto.Name" Name="Plate Name" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Plate_GridDTO" Title="Plate category" TextAlign="TextAlign.Center" Property="@(nameof(Plate_GridDTO.PlateCategory))" Filterable="@true">
+            <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate category" TextAlign="TextAlign.Center" Property="@(nameof(Plate_EditDTO.PlateCategory))" Filterable="@true">
                 <Template Context="dto">
                     @dto.PlateCategoryName
                 </Template>
@@ -37,7 +37,7 @@ else
                                 @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()" />
                 </FilterTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Plate_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="Plate_EditDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
                 <Template Context="dto">
                     <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
                 </Template>
@@ -46,7 +46,7 @@ else
                     <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => grid.CancelEditRow(dto))" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Plate_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn TItem="Plate_EditDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
                 <Template Context="dto">
                     <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
                 </Template>
@@ -58,9 +58,9 @@ else
 }
 
 @code {
-    private RadzenDataGrid<Plate_GridDTO> grid;
+    private RadzenDataGrid<Plate_EditDTO> grid;
     private PlateCategory_GridDTO[] platesCategories;
-    private Plate_GridDTO[] plates;
+    private Plate_EditDTO[] plates;
 
     // category filter
     private int? catFilter;
@@ -68,20 +68,20 @@ else
     protected override async Task OnInitializedAsync()
     {
         platesCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/plateCategories");
-        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
     }
 
-    async Task Edit(Plate_GridDTO dto)
+    async Task Edit(Plate_EditDTO dto)
     {
         await grid.EditRow(dto);
     }
 
     private void Add()
     {
-        grid.InsertRow(new Plate_GridDTO());
+        grid.InsertRow(new Plate_EditDTO());
     }
 
-    private void Save(Plate_GridDTO dto)
+    private void Save(Plate_EditDTO dto)
     {
         grid.UpdateRow(dto);
     }
@@ -89,13 +89,13 @@ else
     private async Task OnCategoryFilterChange()
     {
         grid.Reset();
-        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>($"api/plates?categoryId={catFilter}");
+        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>($"api/plates?categoryId={catFilter}");
     }
 
-    private async Task OnCreateRow(Plate_GridDTO dto)
+    private async Task OnCreateRow(Plate_EditDTO dto)
     {
         Console.WriteLine("In OnCreateRow");
-        var res = await Http.PostAsJsonAsync<Plate_GridDTO>("api/plates", dto);
+        var res = await Http.PostAsJsonAsync<Plate_EditDTO>("api/plates", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -107,13 +107,13 @@ else
             grid.CancelEditRow(dto);
         }
         //reload always
-        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
         StateHasChanged();
     }
 
-    private async Task OnUpdateRow(Plate_GridDTO dto)
+    private async Task OnUpdateRow(Plate_EditDTO dto)
     {
-        var res = await Http.PutAsJsonAsync<Plate_GridDTO>($"api/plates/{dto.Id}", dto);
+        var res = await Http.PutAsJsonAsync<Plate_EditDTO>($"api/plates/{dto.Id}", dto);
 
         if (!res.IsSuccessStatusCode)
         {
@@ -124,11 +124,11 @@ else
                 8000);
         }
         // reload always
-        plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
         StateHasChanged();
     }
 
-    private async Task Delete(Plate_GridDTO dto)
+    private async Task Delete(Plate_EditDTO dto)
     {
         var res = await Http.DeleteAsync($"api/plates/{dto.Id}");
 
@@ -142,7 +142,7 @@ else
         }
         else
         {
-            plates = await Http.GetFromJsonAsync<Plate_GridDTO[]>("api/plates");
+            plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
             StateHasChanged();
         }
 

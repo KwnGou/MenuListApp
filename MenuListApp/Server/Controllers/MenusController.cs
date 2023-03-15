@@ -94,17 +94,10 @@ namespace MenuListApp.Server.Controllers
                 return BadRequest("Specified menu id does not exist");
             }
 
-            if (!(await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate)))
+            if (!(await _context.Plates.AnyAsync(p => p.Id == dto.Plate)))
             {
                 return BadRequest("Specified plate id does not exist");
             }
-            //DateTimeOffset currentDate = DateTimeOffset.Now;
-
-            // check if date is before today
-            //if (dto.Date < currentDate)
-            //{
-            //    return BadRequest("Menu date is before today");
-            //}
 
             var entity = _mapper.Map<Menu>(dto);
 
@@ -148,16 +141,16 @@ namespace MenuListApp.Server.Controllers
                 return BadRequest("Menu id is in use");
             }
 
-            //if (!(await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate)))
-            //{
-            //    return BadRequest("Specified plate id does not exist");
-            //}
+            if (!(await _context.Plates.AnyAsync(p => p.Id == dto.Plate)))
+            {
+                return BadRequest("Specified plate id does not exist");
+            }
 
-            ////check if date is before today
-            //if (dto.Date < currentDate)
-            //{
-            //    return BadRequest("Menu date is before today");
-            //}
+            //check if date is before today
+            if (dto.Date < currentDate)
+            {
+                return BadRequest("Menu date is before today");
+            }
 
 
             var entity = _mapper.Map<Menu>(dto);
@@ -171,13 +164,6 @@ namespace MenuListApp.Server.Controllers
 
             return CreatedAtAction("GetMenu", new { id = mapped.Id }, mapped);
 
-            //_context.Menus.Add(entity);
-
-            //await _context.SaveChangesAsync();
-
-            //var mapped = _mapper.Map<Menu_GridDTO>(entity);
-
-            //return CreatedAtAction("GetMenu", new { id = mapped.Id }, mapped);
         }
 
         // DELETE: api/Menus/5

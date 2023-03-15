@@ -7,6 +7,7 @@ namespace MenuListApp.Server.Model
 {
     public partial class MenuListDBContext : DbContext
     {
+
         public MenuListDBContext(DbContextOptions<MenuListDBContext> options)
             : base(options)
         {
@@ -21,6 +22,7 @@ namespace MenuListApp.Server.Model
         public virtual DbSet<PlateCategory> PlateCategories { get; set; } = null!;
         public virtual DbSet<PlateIngredient> PlateIngredients { get; set; } = null!;
         public virtual DbSet<ShoppingList> ShoppingLists { get; set; } = null!;
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -109,6 +111,8 @@ namespace MenuListApp.Server.Model
                     .IsUnique();
 
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.Recipe).HasMaxLength(2000);
 
                 entity.Property(e => e.Rowversion)
                     .IsRowVersion()

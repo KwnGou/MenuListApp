@@ -26,7 +26,7 @@ namespace MenuListApp.Server.Controllers
 
         // GET: api/Plates
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Plate_GridDTO>>> GetPlates([FromQuery] int? categoryId)
+        public async Task<ActionResult<IEnumerable<Plate_ListDTO>>> GetPlates([FromQuery] int? categoryId)
         {
             if (_context.Plates == null)
             {
@@ -50,29 +50,32 @@ namespace MenuListApp.Server.Controllers
             }
 
 
-            var mapped = _mapper.Map<IEnumerable<Plate_GridDTO>>(result);
+            var mapped = _mapper.Map<IEnumerable<Plate_EditDTO>>(result);
 
             return Ok(mapped);
         }
 
         // GET: api/Plates/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Plate>> GetPlate(int id)
+        public async Task<ActionResult<Plate_DetailsDTO>> GetPlate(int id)
         {
             if (_context.Plates == null)
             {
                 return NotFound();
             }
-            var plate = await _context.Plates.FindAsync(id);
+            var plate = await _context.Plates
+                .Where(p => p.Id == id)
+                .Include (p => p.PlateCategoryNavigation)
+                .Include(p => p.PlateIngredients)
+                .ThenInclude(i => i.Ingredient)
+                .FirstOrDefaultAsync();
 
             if (plate == null)
             {
                 return NotFound();
             }
 
-            await _context.Entry(plate).Reference(c => c.PlateCategoryNavigation).LoadAsync();
-
-            var mapped = _mapper.Map<Plate_GridDTO>(plate);
+            var mapped = _mapper.Map<Plate_DetailsDTO>(plate);
 
             return Ok(mapped);
         }
@@ -80,7 +83,7 @@ namespace MenuListApp.Server.Controllers
         // PUT: api/Plates/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutPlate(int id, Plate_GridDTO dto)
+        public async Task<ActionResult> PutPlate(int id, Plate_EditDTO dto)
         {
             if (id != dto.Id)
             {
@@ -134,7 +137,7 @@ namespace MenuListApp.Server.Controllers
         // POST: api/Plates
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Plate_GridDTO>> PostPlate(Plate_GridDTO dto)
+        public async Task<ActionResult<Plate_EditDTO>> PostPlate(Plate_EditDTO dto)
         {
             if (_context.Plates == null)
             {
@@ -179,7 +182,7 @@ namespace MenuListApp.Server.Controllers
 
             await _context.Entry(entity).Reference(c => c.PlateCategoryNavigation).LoadAsync();
 
-            var mapped = _mapper.Map<Plate_GridDTO>(entity);
+            var mapped = _mapper.Map<Plate_EditDTO>(entity);
 
             return CreatedAtAction("GetPlate", new { id = mapped.Id }, mapped);
         }
