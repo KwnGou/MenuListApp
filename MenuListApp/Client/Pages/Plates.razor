@@ -16,7 +16,7 @@ else
 {
     <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
-                EditMode="DataGridEditMode.Single" Data="@plates" TItem="Plate_EditDTO">
+                Data="@plates" TItem="Plate_EditDTO">
         <Columns>
             <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_EditDTO.Name))">
 @*                <Template Context="dto">
@@ -159,6 +159,9 @@ else
             { "DTO", dto },
             { "IsNew", true }
         };
+
+        var res1 = DlgService.Alert("bananas");
+        var res2 = DlgService.Confirm("Confirm");
         var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
             "Add Plate", 
             dlgParams,
