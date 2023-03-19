@@ -1,6 +1,7 @@
 ﻿@page "/plates"
 @inject HttpClient Http
 @inject NotificationService NotificationSvc
+@inject DialogService DlgService
 
 
 <PageTitle>Plates</PageTitle>
@@ -15,12 +16,12 @@ else
 {
     <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
-                EditMode="DataGridEditMode.Single" Data="@plates" TItem="Plate_EditDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                EditMode="DataGridEditMode.Single" Data="@plates" TItem="Plate_EditDTO">
         <Columns>
             <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_EditDTO.Name))">
-                <EditTemplate Context="dto">
-                    <RadzenTextBox @bind-Value="dto.Name" Name="Plate Name" Style="width:100%; display: block;" />
-                </EditTemplate>
+@*                <Template Context="dto">
+                    <RadzenLink Text="dto.Name"  onclick="@(EditPlate(dto))"/>
+                </Template>*@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate category" TextAlign="TextAlign.Center" Property="@(nameof(Plate_EditDTO.PlateCategory))" Filterable="@true">
                 <Template Context="dto">
@@ -37,7 +38,7 @@ else
                                 @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()" />
                 </FilterTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Plate_EditDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+@*            <RadzenDataGridColumn TItem="Plate_EditDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
                 <Template Context="dto">
                     <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
                 </Template>
@@ -50,11 +51,11 @@ else
                 <Template Context="dto">
                     <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
                 </Template>
-            </RadzenDataGridColumn>
+            </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
     <br />
-    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Plate" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await AddPlate())" />
 }
 
 @code {
@@ -92,59 +93,76 @@ else
         plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>($"api/plates?categoryId={catFilter}");
     }
 
-    private async Task OnCreateRow(Plate_EditDTO dto)
+    //private async Task OnCreateRow(Plate_EditDTO dto)
+    //{
+    //    Console.WriteLine("In OnCreateRow");
+    //    var res = await Http.PostAsJsonAsync<Plate_EditDTO>("api/plates", dto);
+
+    //    if (!res.IsSuccessStatusCode)
+    //    {
+    //        NotificationSvc.Notify(
+    //            NotificationSeverity.Error,
+    //            "Saving failed",
+    //            await res.Content.ReadAsStringAsync(),
+    //            8000);
+    //        grid.CancelEditRow(dto);
+    //    }
+    //    //reload always
+    //    plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
+    //    StateHasChanged();
+    //}
+
+    //private async Task OnUpdateRow(Plate_EditDTO dto)
+    //{
+    //    var res = await Http.PutAsJsonAsync<Plate_EditDTO>($"api/plates/{dto.Id}", dto);
+
+    //    if (!res.IsSuccessStatusCode)
+    //    {
+    //        NotificationSvc.Notify(
+    //            NotificationSeverity.Error,
+    //            "Saving failed",
+    //            await res.Content.ReadAsStringAsync(),
+    //            8000);
+    //    }
+    //    // reload always
+    //    plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
+    //    StateHasChanged();
+    //}
+
+    //private async Task Delete(Plate_EditDTO dto)
+    //{
+    //    var res = await Http.DeleteAsync($"api/plates/{dto.Id}");
+
+    //    if (!res.IsSuccessStatusCode)
+    //    {
+    //        NotificationSvc.Notify(
+    //            NotificationSeverity.Error,
+    //            "Deletion failed",
+    //            await res.Content.ReadAsStringAsync(),
+    //            8000);
+    //    }
+    //    else
+    //    {
+    //        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
+    //        StateHasChanged();
+    //    }
+    //}
+
+    private async Task AddPlate()
     {
-        Console.WriteLine("In OnCreateRow");
-        var res = await Http.PostAsJsonAsync<Plate_EditDTO>("api/plates", dto);
+        var dto = new Plate_DetailsDTO
+            {
+                Ingredients = new List<Ingredient_GridDTO>()
+            };
 
-        if (!res.IsSuccessStatusCode)
-        {
-            NotificationSvc.Notify(
-                NotificationSeverity.Error,
-                "Saving failed",
-                await res.Content.ReadAsStringAsync(),
-                8000);
-            grid.CancelEditRow(dto);
-        }
-        //reload always
-        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
-        StateHasChanged();
-    }
-
-    private async Task OnUpdateRow(Plate_EditDTO dto)
-    {
-        var res = await Http.PutAsJsonAsync<Plate_EditDTO>($"api/plates/{dto.Id}", dto);
-
-        if (!res.IsSuccessStatusCode)
-        {
-            NotificationSvc.Notify(
-                NotificationSeverity.Error,
-                "Saving failed",
-                await res.Content.ReadAsStringAsync(),
-                8000);
-        }
-        // reload always
-        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
-        StateHasChanged();
-    }
-
-    private async Task Delete(Plate_EditDTO dto)
-    {
-        var res = await Http.DeleteAsync($"api/plates/{dto.Id}");
-
-        if (!res.IsSuccessStatusCode)
-        {
-            NotificationSvc.Notify(
-                NotificationSeverity.Error,
-                "Deletion failed",
-                await res.Content.ReadAsStringAsync(),
-                8000);
-        }
-        else
-        {
-            plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
-            StateHasChanged();
-        }
-
+        var dlgParams = new Dictionary<string, object>() {
+            { "DTO", dto },
+            { "IsNew", true }
+        };
+        var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
+            "Add Plate", 
+            dlgParams,
+            new DialogOptions() { Width = "700px", Height = "500px" }
+        );
     }
 }
