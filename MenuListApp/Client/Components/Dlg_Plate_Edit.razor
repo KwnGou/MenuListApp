@@ -24,16 +24,19 @@
             </RadzenTextBox>
         </div>
     </div>
-    <div class="row formRow">
-        <div class="col-md-3 col-sm-12">
-            Plate Ingredients:
-        </div>
-        <div class="col-md-9 col-sm-12">
-            <RadzenTextBox @bind-Value="DTO.PlateCategoryName" Name="Plate Category">
-                @DTO.PlateCategoryName
-            </RadzenTextBox>
-        </div>
-    </div>
+    <br/>
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                    Data="@DTO.Ingredients" TItem="Ingredient_GridDTO">
+        <Columns>
+            <RadzenDataGridColumn TItem="Plate_DetailsDTO" Title="Plate Ingredients" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_DetailsDTO.Ingredients))">
+                <Template Context="dto">
+                    @dto.Ingredients
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
     <div class="row formRow">
         <div class="col-md-3 col-sm-12">
             Plate Recipe:
@@ -44,25 +47,6 @@
             </RadzenTextBox>
         </div>
     </div>
-
-
-    @* <RadzenCard>
-    <RadzenDataGrid TItem="Schedule_DailyExercise_ItemDTO" Data="@DTO.Exercises" AllowColumnResize="@true" AllowSorting="@true" AllowFiltering="@false"
-    @ref="@grid">
-    <Columns>
-    <RadzenDataGridColumn TItem="Schedule_DailyExercise_ItemDTO" Property="@(nameof(Schedule_DailyExercise_ItemDTO.Date))" Title="Date"
-    FormatString="{0:d MMM yy}" />
-    <RadzenDataGridColumn TItem="Schedule_DailyExercise_ItemDTO" Property="@(nameof(Schedule_DailyExercise_ItemDTO.ExerciseName))" Title="Exercise" />
-    <RadzenDataGridColumn TItem="Schedule_DailyExercise_ItemDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
-    <Template Context="item">
-    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteExercise(item)" />
-    </Template>
-    </RadzenDataGridColumn>
-    </Columns>
-    </RadzenDataGrid>
-    <br />
-    <RadzenButton ButtonType="ButtonType.Button" Icon="add" ButtonStyle="ButtonStyle.Primary" Click="@AddExercise" />
-    </RadzenCard>*@
     <div class="row justify-content-center">
         <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
             <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
@@ -74,91 +58,51 @@
 
 
 @code {
+    private RadzenDataGrid<Ingredient_GridDTO> grid;
+
     [Parameter]
     public Plate_DetailsDTO DTO { get; set; }
 
     [Parameter]
     public bool IsNew { get; set; }
 
-    //[Parameter]
-    //public Exercise_GridDTO[] Exercises { get; set; }
-
-    //private RadzenDataGrid<Schedule_DailyExercise_ItemDTO> grid;
-
-    protected override void OnParametersSet()
-    {
-        Console.WriteLine("In params set");
-
-    }
-
     private async Task Save(Plate_DetailsDTO dto)
     {
-        //HttpResponseMessage res;
+        HttpResponseMessage res;
 
-        //if (IsNew)
-        //{
-        //    res = await Http.PostAsJsonAsync<Schedule_DetailsDTO>("api/Schedules", dto);
-        //}
-        //else
-        //{
-        //    res = await Http.PutAsJsonAsync<Schedule_DetailsDTO>($"api/Schedules/{dto.Id}", dto);
-        //}
+        if (IsNew)
+        {
+            res = await Http.PostAsJsonAsync<Plate_DetailsDTO>("api/plates", dto);
+        }
+        else
+        {
+            res = await Http.PutAsJsonAsync<Plate_DetailsDTO>($"api/plates/{dto.Id}", dto);
+        }
 
-        //if (!res.IsSuccessStatusCode)
-        //{
-        //    var errMsg = await res.Content.ReadAsStringAsync();
-        //    NotificationSvc.Notify(
-        //        NotificationSeverity.Error,
-        //        "Saving failed",
-        //        errMsg,
-        //        8000);
-        //    Console.WriteLine($"Save error: {errMsg}");
-        //}
-        //else
-        //{
-        //    DialogSvc.Close(true);
-        //    if (IsNew)
-        //{
-        // NavMan.NavigateTo("plateDetails/id")
-        //}
-        //else
-        //        {
-        // RELOAD DTO
-        //StateHasChanged();
-        // }
-        //}
+        if (!res.IsSuccessStatusCode)
+        {
+            var errMsg = await res.Content.ReadAsStringAsync();
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                errMsg,
+                8000);
+            Console.WriteLine($"Save error: {errMsg}");
+        }
+        else
+        {
+            DialogSvc.Close(true);
+            if (IsNew)
+            {
+                NavMan.NavigateTo("plateDetails/id");
+            }
+            else
+            {
+                NavMan.NavigateTo("plates");
+                StateHasChanged();
+            }
+        }
     }
 
-    private async Task AddExercise()
-    {
-        //var newItem = new Schedule_DailyExercise_ItemDTO { Date = DTO.StartDate };
-
-        //var dlgParams = new Dictionary<string, object>
-        //{
-        //    { "DTO", newItem },
-        //    { "MinDate", DTO.StartDate.DateTime },
-        //    { "MaxDate", DTO.EndDate.DateTime },
-        //    { "Exercises", Exercises }
-        //};
-
-        //var result = await DialogSvc.OpenAsync<Dlg_ScheduleExercises_Edit>(
-        //    "Add Exercise",
-        //    dlgParams,
-        //    new DialogOptions { Width = "400px" });
-
-        //if (result is Schedule_DailyExercise_ItemDTO)
-        //{
-        //    var item = result as Schedule_DailyExercise_ItemDTO;
-        //    DTO.Exercises.Add(item);
-
-        //    await grid.Reload();
-        //}
-    }
-
-    //private async Task DeleteExercise(Schedule_DailyExercise_ItemDTO item)
-    //{
-    //    //DTO.Exercises.Remove(item);
-
-    //    //await grid.Reload();
-    //}
+    
 }

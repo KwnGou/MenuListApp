@@ -9,8 +9,11 @@ namespace MenuListApp.Shared.MenuListDTOs
 {
     public class Plate_ListDTO
     {
+        [Key]
         public int Id { get; set; }
         public int PlateCategory { get; set; }
+        [Required]
+        [MaxLength(50)]
         public string Name { get; set; } = null!;
         public string? PlateCategoryName { get; set; }
     }

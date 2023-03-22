@@ -1,0 +1,120 @@
+﻿@page "/PlateDetails/{Id:int}"
+
+@inject HttpClient Http
+@inject NotificationService NotificationSvc
+@inject DialogService DlgService
+@inject NavigationManager NavMan
+@inject TooltipService TooltipSvc
+
+
+<PageTitle>Plate Details</PageTitle>
+
+<h1>Plates Details</h1>
+
+@if (DTO == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenTabs TItem="Plate_DetailsDTO" Data="@DTO">
+        <Tabs>
+            <RadzenTabsItem Text="Main">
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                        Plate Name:
+                    </div>
+                    <div class="col-md-9 col-sm-12">
+                        @DTO.Name
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-12">
+                        Plate Category:
+                    </div>
+                    <div class="col-md-9 col-sm-12">
+                        @DTO.PlateCategoryName
+                    </div>
+                </div>
+                <RadzenButton Icon="add_circle_outline" Text="Edit Plate" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await EditPlate())" />
+                <RadzenButton Icon="add_circle_outline" Text="Delete Plate" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Delete(DTO.Id))" />
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="Igredients">
+                <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                            Data="@DTO.Ingredients" TItem="Ingredient_GridDTO">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))" />
+                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Category" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.IngredientCategoryName))" />
+                    </Columns>
+                </RadzenDataGrid>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="Recipe">
+                <div class="row">
+                    <div class="col-12">
+                        <RadzenTextArea ReadOnly="true" @bind-Value="DTO.Recipe" Name="Plate Recipe" Style="width:80%" Rows="8">
+                            @DTO.Recipe
+                        </RadzenTextArea>
+                    </div>
+                </div>
+            </RadzenTabsItem>
+            <br />
+        </Tabs>
+    </RadzenTabs>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    //private Plate_DetailsDTO[] plates;
+    private RadzenDataGrid<Ingredient_GridDTO> grid;
+    private Plate_DetailsDTO DTO;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //plates = await Http.GetFromJsonAsync<Plate_DetailsDTO[]>($"api/Plates");
+        //Console.WriteLine(DTO.Id + " this plate id");
+        DTO = await Http.GetFromJsonAsync<Plate_DetailsDTO>($"api/Plates/{Id}");
+
+    }
+
+    async Task EditPlate()
+    {
+        var dto = DTO;
+        {
+            var Ingredients = DTO.Ingredients;
+        };
+
+        var dlgParams = new Dictionary<string, object>() {
+            { "DTO", dto },
+            { "IsNew", false }
+        };
+
+        var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
+            "Add Plate",
+            dlgParams,
+            new DialogOptions() { Width = "700px", Height = "500px" }
+        );
+    }
+
+    private async Task Delete(int id)
+    {
+        var res = await Http.DeleteAsync($"api/plates/{id}");
+
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Deletion failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        else
+        {
+            NavMan.NavigateTo("plates");
+            StateHasChanged();
+        }
+
+    }
+}

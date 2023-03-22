@@ -19,9 +19,9 @@ else
                 Data="@plates" TItem="Plate_EditDTO">
         <Columns>
             <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_EditDTO.Name))">
-@*                <Template Context="dto">
-                    <RadzenLink Text="dto.Name"  onclick="@(EditPlate(dto))"/>
-                </Template>*@
+                <Template Context="dto">
+                    <RadzenLink Text="@dto.Name" Path=@($"/plateDetails/{dto.Id}") />
+                </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate category" TextAlign="TextAlign.Center" Property="@(nameof(Plate_EditDTO.PlateCategory))" Filterable="@true">
                 <Template Context="dto">
@@ -38,20 +38,6 @@ else
                                 @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()" />
                 </FilterTemplate>
             </RadzenDataGridColumn>
-@*            <RadzenDataGridColumn TItem="Plate_EditDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
-                <Template Context="dto">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
-                </Template>
-                <EditTemplate Context="dto">
-                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => Save(dto)" />
-                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => grid.CancelEditRow(dto))" />
-                </EditTemplate>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Plate_EditDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
-                <Template Context="dto">
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
-                </Template>
-            </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
     <br />
@@ -93,60 +79,6 @@ else
         plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>($"api/plates?categoryId={catFilter}");
     }
 
-    //private async Task OnCreateRow(Plate_EditDTO dto)
-    //{
-    //    Console.WriteLine("In OnCreateRow");
-    //    var res = await Http.PostAsJsonAsync<Plate_EditDTO>("api/plates", dto);
-
-    //    if (!res.IsSuccessStatusCode)
-    //    {
-    //        NotificationSvc.Notify(
-    //            NotificationSeverity.Error,
-    //            "Saving failed",
-    //            await res.Content.ReadAsStringAsync(),
-    //            8000);
-    //        grid.CancelEditRow(dto);
-    //    }
-    //    //reload always
-    //    plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
-    //    StateHasChanged();
-    //}
-
-    //private async Task OnUpdateRow(Plate_EditDTO dto)
-    //{
-    //    var res = await Http.PutAsJsonAsync<Plate_EditDTO>($"api/plates/{dto.Id}", dto);
-
-    //    if (!res.IsSuccessStatusCode)
-    //    {
-    //        NotificationSvc.Notify(
-    //            NotificationSeverity.Error,
-    //            "Saving failed",
-    //            await res.Content.ReadAsStringAsync(),
-    //            8000);
-    //    }
-    //    // reload always
-    //    plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
-    //    StateHasChanged();
-    //}
-
-    //private async Task Delete(Plate_EditDTO dto)
-    //{
-    //    var res = await Http.DeleteAsync($"api/plates/{dto.Id}");
-
-    //    if (!res.IsSuccessStatusCode)
-    //    {
-    //        NotificationSvc.Notify(
-    //            NotificationSeverity.Error,
-    //            "Deletion failed",
-    //            await res.Content.ReadAsStringAsync(),
-    //            8000);
-    //    }
-    //    else
-    //    {
-    //        plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
-    //        StateHasChanged();
-    //    }
-    //}
 
     private async Task AddPlate()
     {
@@ -163,7 +95,7 @@ else
         var res1 = DlgService.Alert("bananas");
         var res2 = DlgService.Confirm("Confirm");
         var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
-            "Add Plate", 
+            "Add Plate",
             dlgParams,
             new DialogOptions() { Width = "700px", Height = "500px" }
         );
