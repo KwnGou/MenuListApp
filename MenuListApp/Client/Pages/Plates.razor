@@ -58,20 +58,20 @@ else
         plates = await Http.GetFromJsonAsync<Plate_EditDTO[]>("api/plates");
     }
 
-    async Task Edit(Plate_EditDTO dto)
-    {
-        await grid.EditRow(dto);
-    }
+    //async Task Edit(Plate_EditDTO dto)
+    //{
+    //    await grid.EditRow(dto);
+    //}
 
-    private void Add()
-    {
-        grid.InsertRow(new Plate_EditDTO());
-    }
+    //private void Add()
+    //{
+    //    grid.InsertRow(new Plate_EditDTO());
+    //}
 
-    private void Save(Plate_EditDTO dto)
-    {
-        grid.UpdateRow(dto);
-    }
+    //private void Save(Plate_EditDTO dto)
+    //{
+    //    grid.UpdateRow(dto);
+    //}
 
     private async Task OnCategoryFilterChange()
     {
@@ -82,14 +82,14 @@ else
 
     private async Task AddPlate()
     {
-        var dto = new Plate_DetailsDTO
+        var dto = new Plate_EditDTO
             {
-                Ingredients = new List<Ingredient_GridDTO>()
+                Ingredients = new List<PlateIngredient_GridDTO>()
             };
 
         var dlgParams = new Dictionary<string, object>() {
             { "DTO", dto },
-            { "IsNew", true }
+            { "IsNew", true },
         };
 
         var res1 = DlgService.Alert("bananas");

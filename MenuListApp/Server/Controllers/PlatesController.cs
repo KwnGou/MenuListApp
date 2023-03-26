@@ -65,17 +65,25 @@ namespace MenuListApp.Server.Controllers
             }
             var plate = await _context.Plates
                 .Where(p => p.Id == id)
-                .Include (p => p.PlateCategoryNavigation)
+                .Include(p => p.PlateCategoryNavigation)
                 .Include(p => p.PlateIngredients)
                 .ThenInclude(i => i.Ingredient)
+                .ThenInclude(ing => ing.IngredientCategoryNavigation)
                 .FirstOrDefaultAsync();
 
             if (plate == null)
             {
                 return NotFound();
             }
-
-            var mapped = _mapper.Map<Plate_DetailsDTO>(plate);
+            Plate_DetailsDTO mapped = null;
+            try
+            {
+                mapped = _mapper.Map<Plate_DetailsDTO>(plate);
+            }
+            catch (Exception ex)
+            {
+                var i = ex.Message;
+            }
 
             return Ok(mapped);
         }

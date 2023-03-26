@@ -81,10 +81,7 @@ else
 
     async Task EditPlate()
     {
-        var dto = DTO;
-        {
-            var Ingredients = DTO.Ingredients;
-        };
+        var dto = Plate_EditDTO.CreateFromDetailsDTO(DTO);
 
         var dlgParams = new Dictionary<string, object>() {
             { "DTO", dto },
@@ -92,7 +89,7 @@ else
         };
 
         var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
-            "Add Plate",
+            "Edit Plate",
             dlgParams,
             new DialogOptions() { Width = "700px", Height = "500px" }
         );

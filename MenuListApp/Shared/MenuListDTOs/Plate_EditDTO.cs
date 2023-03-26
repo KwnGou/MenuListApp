@@ -19,6 +19,22 @@ namespace MenuListApp.Shared.MenuListDTOs
         public string? PlateCategoryName { get; set; }
         public byte[]? Rowversion { get; set; }
 
-        public List<PlateIngedients_GridDTO> Ingedients;
+        public List<PlateIngredient_GridDTO> Ingredients;
+
+        public static Plate_EditDTO CreateFromDetailsDTO(Plate_DetailsDTO dto)
+        {
+            var editDto = new Plate_EditDTO
+            {
+                Id = dto.Id,
+                PlateCategory = dto.PlateCategory,
+                Name = dto.Name,
+                Recipe = dto.Recipe,
+                Rowversion = dto.Rowversion,
+                Ingredients = dto.Ingredients.Select(i => new PlateIngredient_GridDTO { PlateId = dto.Id, IngredientId = i.Id }).ToList()
+            };
+            return editDto;
+        }
+
     }
+
 }

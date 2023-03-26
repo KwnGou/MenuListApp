@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MenuListApp.Shared.MenuListDTOs
 {
-    public class PlateIngedients_GridDTO
+    public class PlateIngredient_GridDTO
     {
         public int PlateId { get; set; }
         public int IngredientId { get; set; }
