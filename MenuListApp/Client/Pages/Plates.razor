@@ -2,7 +2,7 @@
 @inject HttpClient Http
 @inject NotificationService NotificationSvc
 @inject DialogService DlgService
-
+@inject NavigationManager NavMan
 
 <PageTitle>Plates</PageTitle>
 
@@ -92,12 +92,12 @@ else
             { "IsNew", true },
         };
 
-        var res1 = DlgService.Alert("bananas");
-        var res2 = DlgService.Confirm("Confirm");
         var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
             "Add Plate",
             dlgParams,
             new DialogOptions() { Width = "700px", Height = "500px" }
         );
+
+        NavMan.NavigateTo("/plates");
     }
 }

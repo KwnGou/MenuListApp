@@ -106,7 +106,7 @@ namespace MenuListApp.Server.Controllers
 
             dto.Name.Trim();
 
-            if (await _context.Plates.AnyAsync(i => i.Name == dto.Name))
+            if (await _context.Plates.AnyAsync(i => i.Name == dto.Name && i.Id != dto.Id))
             {
                 return BadRequest("Specified Plate name already exist");
             }
@@ -120,6 +120,19 @@ namespace MenuListApp.Server.Controllers
             }
 
             var entity = _mapper.Map<Plate>(dto);
+
+            // remove existing ingredients
+            var currentIngredients = await _context.PlateIngredients
+                .Where(pi => pi.PlateId == entity.Id)
+                .ToArrayAsync();
+
+            _context.PlateIngredients.RemoveRange(currentIngredients);
+
+            // add new ingredients
+            foreach (var item in entity.PlateIngredients)
+            {
+                _context.PlateIngredients.Add(item);
+            }
 
             _context.Entry(entity).State = EntityState.Modified;
 
@@ -162,7 +175,7 @@ namespace MenuListApp.Server.Controllers
 
             dto.Name.Trim();
 
-            if (await _context.Plates.AnyAsync(p => p.Name == dto.Name))
+            if (await _context.Plates.AnyAsync(p => p.Name == dto.Name && p.Id != dto.Id))
             {
                 return BadRequest("Specified Plate name already exist");
             }
@@ -186,6 +199,13 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.Plates.Add(entity);
+            // Add ingredients
+            foreach (var item in entity.PlateIngredients)
+            {
+                _context.PlateIngredients.Add(item);
+            }
+
+
             await _context.SaveChangesAsync();
 
             await _context.Entry(entity).Reference(c => c.PlateCategoryNavigation).LoadAsync();

@@ -73,10 +73,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        //plates = await Http.GetFromJsonAsync<Plate_DetailsDTO[]>($"api/Plates");
-        //Console.WriteLine(DTO.Id + " this plate id");
         DTO = await Http.GetFromJsonAsync<Plate_DetailsDTO>($"api/Plates/{Id}");
-
     }
 
     async Task EditPlate()
@@ -93,6 +90,13 @@ else
             dlgParams,
             new DialogOptions() { Width = "700px", Height = "500px" }
         );
+
+        var bRes = res as bool?;
+        if (bRes.HasValue && bRes.Value)
+        {
+            DTO = await Http.GetFromJsonAsync<Plate_DetailsDTO>($"api/Plates/{Id}");
+            StateHasChanged();
+        }
     }
 
     private async Task Delete(int id)

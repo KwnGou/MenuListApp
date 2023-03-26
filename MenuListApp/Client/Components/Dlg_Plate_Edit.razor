@@ -3,62 +3,90 @@
 @inject NotificationService NotificationSvc
 @inject NavigationManager NavMan
 
-<div>
-    <RadzenTabs TItem="Plate_EditDTO" Data="@DTO">
-        <Tabs>
-            <RadzenTabsItem Text="Main">
-                <div class="row">
-                    <div class="col-md-3 col-sm-12">
-                        Plate Name:
+@if (isLoading)
+{
+    <em>Loading ...</em>
+}
+else
+{
+    <RadzenTemplateForm Data="DTO" TItem="Plate_EditDTO" Submit="@(async (args) => await Save(DTO))">
+        <RadzenTabs TItem="Plate_EditDTO" Data="@DTO">
+            <Tabs>
+                <RadzenTabsItem Text="Main">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-12">
+                            Plate Name:
+                        </div>
+                        <div class="col-md-9 col-sm-12">
+                            <RadzenTextBox @bind-Value="DTO.Name" Name="Plate Name">
+                                @DTO.Name
+                            </RadzenTextBox>
+                        </div>
                     </div>
-                    <div class="col-md-9 col-sm-12">
-                        <RadzenTextBox @bind-Value="DTO.Name" Name="Plate Name">
-                            @DTO.Name
-                        </RadzenTextBox>
+                    <div class="row formRow">
+                        <div class="col-md-3 col-sm-12">
+                            Plate Category:
+                        </div>
+                        <div class="col-md-9 col-sm-12">
+                            <RadzenDropDown TValue="int" Data="plateCategories" @bind-Value="@DTO.PlateCategory"
+                                        TextProperty="@(nameof(PlateCategory_GridDTO.Name))"
+                                        ValueProperty="@(nameof(PlateCategory_GridDTO.Id))" />
+                        </div>
                     </div>
-                </div>
-                <div class="row formRow">
-                    <div class="col-md-3 col-sm-12">
-                        Plate Category:
-                    </div>
-                    <div class="col-md-9 col-sm-12">
-                        <RadzenTextBox @bind-Value="DTO.PlateCategoryName" Name="Plate Category">
-                            @DTO.PlateCategoryName
-                        </RadzenTextBox>
-                    </div>
-                </div>
-            </RadzenTabsItem>
-            <RadzenTabsItem Text="Igredients">
-                <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Igredients">
+                    <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                                 Data="@DTO.Ingredients" TItem="PlateIngredient_GridDTO">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))" />
-                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Category" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.IngredientCategory))">
-                            <Template Context="ingDto">
-                                <RadzenDropDown TValue="int" Multiple="@false" Data="@ingredients" Placeholder="Select ingredient"
-                                                TextProperty="@(nameof(Ingredient_GridDTO.Name))" ValueProperty="@(nameof(Ingredient_GridDTO.Id))"
-                                                 />
-                            </Template>
-                        </RadzenDataGridColumn>
-                    </Columns>
-                </RadzenDataGrid>
-            </RadzenTabsItem>
-            <RadzenTabsItem Text="Recipe">
-                <div class="row">
-                    <div class="col-12">
-                        <RadzenTextArea @bind-Value="DTO.Recipe" Name="Plate Recipe" Style="width:80%" Rows="8" />
+                        <Columns>
+                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(PlateIngredient_GridDTO.IngredientId))">
+                                <Template Context="ingDto">
+                                    @(ingredients.First(i => i.Id == ingDto.IngredientId).Name)
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Title="Category" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(PlateIngredient_GridDTO.IngredientId))">
+                                <Template Context="ingDto">
+                                    @(ingredients.First(i => i.Id == ingDto.IngredientId).IngredientCategoryName)
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                                <Template Context="ingDto">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Icon="delete_forever"
+                                              Click="@(async (args) => await DeleteIngredient(ingDto))" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                    <br />
+                    <div class="row">
+                        <div class="col-2">Select new ingerdient</div>
+                        <div class="col-6">
+                            <RadzenDropDown Data="@ingredients" TValue="int?" AllowClear="@true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="@true"
+                                        TextProperty="@(nameof(Ingredient_GridDTO.Name))"
+                                        ValueProperty="@(nameof(Ingredient_GridDTO.Id))"
+                                        @bind-Value=@newIngId />
+                        </div>
+                        <div class="col-4">
+                            <RadzenButton Text="Add ingredient" Icon="add_circle" Click="@AddIngredient" Disabled="@(!newIngId.HasValue)" />
+                        </div>
                     </div>
-                </div>
-            </RadzenTabsItem>
-        </Tabs>
-    </RadzenTabs>
-    <br />
-    <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
-    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Recipe">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenTextArea @bind-Value="DTO.Recipe" Name="Plate Recipe" Style="width:80%" Rows="8" />
+                        </div>
+                    </div>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+        <br />
+        <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
+        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
                   Click="@((args) => DialogSvc.Close(false))" />
-</div>
-
+    </RadzenTemplateForm>
+}
 
 @code {
     private RadzenDataGrid<PlateIngredient_GridDTO> grid;
@@ -70,9 +98,19 @@
     [Parameter]
     public bool IsNew { get; set; }
 
+    private bool isLoading;
+    private int? newIngId;
+
+    private PlateCategory_GridDTO[] plateCategories;
+
     protected override async Task OnParametersSetAsync()
     {
-        ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingedients");
+        isLoading = true;
+
+        plateCategories = await Http.GetFromJsonAsync<PlateCategory_GridDTO[]>("api/PlateCategories");
+        ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingredients");
+
+        isLoading = false;
     }
 
     private async Task Save(Plate_EditDTO dto)
@@ -85,10 +123,9 @@
         }
         else
         {
+            Console.WriteLine($"Ingredients: {dto.Ingredients.Count}");
             res = await Http.PutAsJsonAsync<Plate_EditDTO>($"api/plates/{dto.Id}", dto);
         }
-
-
 
         if (!res.IsSuccessStatusCode)
         {
@@ -112,8 +149,38 @@
                 NavMan.NavigateTo("plates");
                 StateHasChanged();
             }
+
+            DialogSvc.Close(true);
         }
     }
 
+    private async Task DeleteIngredient(PlateIngredient_GridDTO ingDto)
+    {
+        DTO.Ingredients.Remove(ingDto);
+        await grid.Reload();
+    }
 
+    private async Task AddIngredient()
+    {
+        if (!newIngId.HasValue)
+        {
+            return;
+        }
+
+        if (DTO.Ingredients.Any(i => i.IngredientId == newIngId.Value))
+        {
+            NotificationSvc.Notify(NotificationSeverity.Warning, "Careful!", "Ingredient already exists");
+            newIngId = null;
+            StateHasChanged();
+            return;
+        }
+
+        if (DTO.Ingredients == null)
+        {
+            DTO.Ingredients = new List<PlateIngredient_GridDTO>();
+        }
+        DTO.Ingredients.Add(new PlateIngredient_GridDTO { PlateId = DTO.Id, IngredientId = newIngId.Value });
+
+        await grid.Reload();
+    }
 }

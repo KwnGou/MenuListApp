@@ -29,18 +29,25 @@ namespace MenuListApp.Server.Model
             CreateMap<Plate, Plate_EditDTO>()
                 .ForMember(dest => dest.PlateCategoryName, opt => opt.MapFrom(src => src.PlateCategoryNavigation.Name));
 
-            CreateMap<Plate_EditDTO, Plate>();
+            CreateMap<Plate_EditDTO, Plate>()
+                .ForMember(dest => dest.PlateIngredients, opt => opt.MapFrom(src =>
+                    src.Ingredients.Select(i => new PlateIngredient { PlateId = i.PlateId, IngredientId = i.IngredientId })));
+
+            CreateMap<Plate, Plate_DetailsDTO>()
+                .ForMember(dest => dest.PlateCategoryName, opt => opt.MapFrom(src => src.PlateCategoryNavigation.Name))
+                .ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src =>
+                    src.PlateIngredients.Select(i => new Ingredient_GridDTO
+                    {
+                        Id = i.Ingredient.Id,
+                        Name = i.Ingredient.Name,
+                        IngredientCategory = i.Ingredient.IngredientCategory,
+                        IngredientCategoryName = i.Ingredient.IngredientCategoryNavigation.Name
+                    })));
 
             CreateMap<Menu, Menu_GridDTO>()
                 .ForMember(dest => dest.MenuPlateName, opt => opt.MapFrom(src => src.PlateNavigation.Name));
 
             CreateMap<Menu_GridDTO, Menu>();
-
-
-            CreateMap<Plate, Plate_DetailsDTO>()
-                .ForMember(dest => dest.PlateCategoryName, opt => opt.MapFrom(src => src.PlateCategoryNavigation.Name))
-                .ForMember(dest => dest.Ingredients, opt => opt.MapFrom(src => 
-                    src.PlateIngredients.Select(i => new Ingredient_GridDTO { Id = i.Ingredient.Id, Name = i.Ingredient.Name, IngredientCategory = i.Ingredient.IngredientCategory, IngredientCategoryName = i.Ingredient.IngredientCategoryNavigation.Name })));
         }
 
     }
