@@ -123,7 +123,6 @@ else
         }
         else
         {
-            Console.WriteLine($"Ingredients: {dto.Ingredients.Count}");
             res = await Http.PutAsJsonAsync<Plate_EditDTO>($"api/plates/{dto.Id}", dto);
         }
 
@@ -140,17 +139,7 @@ else
         else
         {
             DialogSvc.Close(true);
-            if (IsNew)
-            {
-                NavMan.NavigateTo("plateDetails/id");
-            }
-            else
-            {
-                NavMan.NavigateTo("plates");
-                StateHasChanged();
-            }
-
-            DialogSvc.Close(true);
+            NavMan.NavigateTo($"plateDetails/{dto.Id}");
         }
     }
 
