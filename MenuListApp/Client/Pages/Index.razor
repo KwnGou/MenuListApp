@@ -22,7 +22,7 @@ else
                     <RadzenDatePicker @bind-Value="dto.Date" Min=DateTime.Today Name="Date" Style="width:100%; display: block;" ShowTime="false" DateFormat="d MMM yy" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Menu_GridDTO" Title="Plate" TextAlign="TextAlign.Center" Property="@(nameof(Menu_GridDTO.Plate))" Filterable="@true">
+            <RadzenDataGridColumn TItem="Menu_GridDTO" Title="Plate" TextAlign="TextAlign.Left" Property="@(nameof(Menu_GridDTO.Plate))" Filterable="@true">
                 <Template Context="dto">
                     @dto.MenuPlateName
                 </Template>

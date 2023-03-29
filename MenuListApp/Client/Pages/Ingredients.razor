@@ -17,12 +17,12 @@ else
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@ingredients" TItem="Ingredient_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
-            <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))">
+            <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))">
                 <EditTemplate Context="dto">
                     <RadzenTextBox @bind-Value="dto.Name" Name="Ingredient Name" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient category" TextAlign="TextAlign.Center" Property="@(nameof(Ingredient_GridDTO.IngredientCategory))" Filterable="@true">
+            <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient category" TextAlign="TextAlign.Left" Property="@(nameof(Ingredient_GridDTO.IngredientCategory))" Filterable="@true">
                 <Template Context="dto">
                     @dto.IngredientCategoryName
                 </Template>
@@ -31,11 +31,6 @@ else
                         TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))"
                                 @bind-Value="@dto.IngredientCategory" />
                 </EditTemplate>
-                @*<RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient category" TextAlign="TextAlign.Center" Property="@(nameof(Ingredient_GridDTO.IngredientCategory))" Filterable="@true">
-                    <Template Context="newCat">
-                    @newCat.IngredientCategoryName
-                    </Template>
-                </RadzenDataGridColumn>*@
                 <FilterTemplate Context="dto">
                     <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@ingredientsCategories" 
                                 TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))" 

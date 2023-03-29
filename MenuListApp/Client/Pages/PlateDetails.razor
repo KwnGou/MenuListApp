@@ -41,11 +41,11 @@ else
             </RadzenTabsItem>
             <RadzenTabsItem Text="Igredients">
                 <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Left"
                             Data="@DTO.Ingredients" TItem="Ingredient_GridDTO">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))" />
-                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Category" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.IngredientCategoryName))" />
+                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))" />
+                        <RadzenDataGridColumn TItem="Ingredient_GridDTO" Title="Category" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.IngredientCategoryName))" />
                     </Columns>
                 </RadzenDataGrid>
             </RadzenTabsItem>

@@ -17,12 +17,12 @@ else
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@itemsCategories" TItem="ItemsCategories_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
-            <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Title="Category name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(ItemsCategories_GridDTO.Name))">
+            <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Title="Category name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ItemsCategories_GridDTO.Name))">
                 <EditTemplate Context="dto">
                     <RadzenTextBox @bind-Value="dto.Name" Name="Category Name" Style="width:100%; display: block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center" >
+            <RadzenDataGridColumn TItem="ItemsCategories_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
                     <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await Edit(dto)" />
                 </Template>

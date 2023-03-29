@@ -27,7 +27,7 @@ namespace MenuListApp.Server.Controllers
         // GET: api/Menus
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Menu_GridDTO>>> GetMenus([FromQuery] int? plateId)
-        { 
+        {
             if (_context.Menus == null)
             {
                 return NotFound();
@@ -89,14 +89,10 @@ namespace MenuListApp.Server.Controllers
 
             // Data validation
 
-            if (!(await _context.Menus.AnyAsync(m => m.Id == dto.Id)))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Specified menu id does not exist");
-            }
-
-            if (!(await _context.Plates.AnyAsync(p => p.Id == dto.Plate)))
-            {
-                return BadRequest("Specified plate id does not exist");
+                return BadRequest(msg);
             }
 
             var entity = _mapper.Map<Menu>(dto);
@@ -134,24 +130,18 @@ namespace MenuListApp.Server.Controllers
 
             DateTimeOffset currentDate = DateTimeOffset.Now;
 
-            
+
             // Validation
-            if (await _context.Menus.AnyAsync(m => m.Id == dto.Id))
-            {
-                return BadRequest("Menu id is in use");
-            }
-
-            if (!(await _context.Plates.AnyAsync(p => p.Id == dto.Plate)))
-            {
-                return BadRequest("Specified plate id does not exist");
-            }
-
-            //check if date is before today
             if (dto.Date < currentDate)
             {
                 return BadRequest("Menu date is before today");
             }
 
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
+            {
+                return BadRequest(msg);
+            }
 
             var entity = _mapper.Map<Menu>(dto);
 
@@ -190,6 +180,27 @@ namespace MenuListApp.Server.Controllers
         private bool MenuExists(int id)
         {
             return _context.Menus.Any(m => m.Id == id);
+        }
+
+        private async  Task<(bool result, string message)> ValidateData(Menu_GridDTO dto)
+        {
+            if (await _context.Menus.AnyAsync(m => m.Id == dto.Id))
+            {
+                return (false, "Menu id is in use");
+            }
+
+            if (!(await _context.Plates.AnyAsync(p => p.Id == dto.Plate)))
+            {
+                return (false, "Specified plate id does not exist");
+            }
+
+            if (await _context.Menus.AnyAsync(m => m.Date.Date == dto.Date.Date) &&
+                await _context.Menus.AnyAsync(m => m.PlateNavigation.Id == dto.Plate))
+            {
+                return (false, "Specific plate is already in menu for this date");
+            }
+
+            return (true,string.Empty);
         }
     }
 }

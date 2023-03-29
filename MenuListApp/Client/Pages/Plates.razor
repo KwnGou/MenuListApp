@@ -18,12 +18,12 @@ else
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 Data="@plates" TItem="Plate_EditDTO">
         <Columns>
-            <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(Plate_EditDTO.Name))">
+            <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Plate_EditDTO.Name))">
                 <Template Context="dto">
                     <RadzenLink Text="@dto.Name" Path=@($"/plateDetails/{dto.Id}") />
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate category" TextAlign="TextAlign.Center" Property="@(nameof(Plate_EditDTO.PlateCategory))" Filterable="@true">
+            <RadzenDataGridColumn TItem="Plate_EditDTO" Title="Plate category" TextAlign="TextAlign.Left" Property="@(nameof(Plate_EditDTO.PlateCategory))" Filterable="@true">
                 <Template Context="dto">
                     @dto.PlateCategoryName
                 </Template>

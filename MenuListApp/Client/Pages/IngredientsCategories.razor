@@ -17,7 +17,7 @@ else
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@ingredientsCategories" TItem="IngredientCategory_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
-            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Title="Category name" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(IngredientCategory_GridDTO.Name))">
+            <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Title="Category name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(IngredientCategory_GridDTO.Name))">
                 <EditTemplate Context="dto">
                     <RadzenTextBox @bind-Value="dto.Name" Name="Category Name" Style="width:100%; display: block;" />
                 </EditTemplate>

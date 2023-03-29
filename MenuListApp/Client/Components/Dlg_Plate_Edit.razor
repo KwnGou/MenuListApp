@@ -18,7 +18,7 @@ else
                             Plate Name:
                         </div>
                         <div class="col-md-9 col-sm-12">
-                            <RadzenTextBox @bind-Value="DTO.Name" Name="Plate Name">
+                            <RadzenTextBox @bind-Value="DTO.Name" Name="Plate Name" Style="text-align.Left">
                                 @DTO.Name
                             </RadzenTextBox>
                         </div>
@@ -28,7 +28,7 @@ else
                             Plate Category:
                         </div>
                         <div class="col-md-9 col-sm-12">
-                            <RadzenDropDown TValue="int" Data="plateCategories" @bind-Value="@DTO.PlateCategory"
+                            <RadzenDropDown TValue="int" Data="plateCategories" @bind-Value="@DTO.PlateCategory" Style="text-align.Left"
                                         TextProperty="@(nameof(PlateCategory_GridDTO.Name))"
                                         ValueProperty="@(nameof(PlateCategory_GridDTO.Id))" />
                         </div>
@@ -36,15 +36,15 @@ else
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Igredients">
                     <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Left"
                                 Data="@DTO.Ingredients" TItem="PlateIngredient_GridDTO">
                         <Columns>
-                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(PlateIngredient_GridDTO.IngredientId))">
+                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Title="Ingredient" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(PlateIngredient_GridDTO.IngredientId))">
                                 <Template Context="ingDto">
                                     @(ingredients.First(i => i.Id == ingDto.IngredientId).Name)
                                 </Template>
                             </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Title="Category" TextAlign="TextAlign.Center" Filterable="@true" Property="@(nameof(PlateIngredient_GridDTO.IngredientId))">
+                            <RadzenDataGridColumn TItem="PlateIngredient_GridDTO" Title="Category" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(PlateIngredient_GridDTO.IngredientId))">
                                 <Template Context="ingDto">
                                     @(ingredients.First(i => i.Id == ingDto.IngredientId).IngredientCategoryName)
                                 </Template>
@@ -83,7 +83,7 @@ else
         </RadzenTabs>
         <br />
         <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
-        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
+        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" 
                   Click="@((args) => DialogSvc.Close(false))" />
     </RadzenTemplateForm>
 }

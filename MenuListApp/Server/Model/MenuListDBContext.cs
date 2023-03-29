@@ -22,7 +22,7 @@ namespace MenuListApp.Server.Model
         public virtual DbSet<PlateCategory> PlateCategories { get; set; } = null!;
         public virtual DbSet<PlateIngredient> PlateIngredients { get; set; } = null!;
         public virtual DbSet<ShoppingList> ShoppingLists { get; set; } = null!;
-
+        public virtual DbSet<ShoppingListDetail> ShoppingListDetails { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -161,6 +161,13 @@ namespace MenuListApp.Server.Model
             {
                 entity.ToTable("ShoppingList");
 
+                entity.Property(e => e.Rowversion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+            });
+
+            modelBuilder.Entity<ShoppingListDetail>(entity =>
+            {
                 entity.HasIndex(e => new { e.RelatedObjectId, e.RelatedObjectType }, "IX_Unique_ShoppingListIItem");
 
                 entity.Property(e => e.Remarks).HasMaxLength(100);
@@ -168,6 +175,12 @@ namespace MenuListApp.Server.Model
                 entity.Property(e => e.Rowversion)
                     .IsRowVersion()
                     .IsConcurrencyToken();
+
+                entity.HasOne(d => d.ShoppingList)
+                    .WithMany(p => p.ShoppingListDetails)
+                    .HasForeignKey(d => d.ShoppingListId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ShoppingListDetails_ShoppingList");
             });
 
             OnModelCreatingPartial(modelBuilder);
