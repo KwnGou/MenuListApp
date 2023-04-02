@@ -1,0 +1,94 @@
+﻿@page "/shoppingLists"
+@inject HttpClient Http
+@inject NotificationService NotificationSvc
+@inject DialogService DlgService
+@inject NavigationManager NavMan
+
+<PageTitle>Shopping Lists</PageTitle>
+
+<h1>Shopping Lists</h1>
+
+@if (shoppingLists == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
+                Data="@shoppingLists" TItem="ShoppingList_GridDTO">
+        <Columns>
+            <RadzenDataGridColumn TItem="ShoppingList_GridDTO" Title="Date" TextAlign="TextAlign.Left" Property="@(nameof(ShoppingList_GridDTO.Date))">
+                <Template Context="dto">
+                    <RadzenLink Text="@dto.Date.ToString("d MMM yy")" Path=@($"/shoppingListDetails/{dto.Id}") />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="ShoppingList_GridDTO" Title="Comments" TextAlign="TextAlign.Left" Property="@(nameof(ShoppingList_GridDTO.Comments))" Filterable="@true">
+                <Template Context="dto">
+                    <RadzenTextArea ReadOnly="@true" Rows="3" Style="width:100%" Value="@dto.Comments" />
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Shopping List" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await AddShoppingList())" />
+}
+
+@code {
+    private RadzenDataGrid<ShoppingList_GridDTO> grid;
+    private ShoppingList_GridDTO[] shoppingLists;
+
+    // category filter
+    private int? catFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        shoppingLists = await Http.GetFromJsonAsync<ShoppingList_GridDTO[]>("api/shoppingLists");
+    }
+
+    private async Task AddShoppingList()
+    {
+        var dto = new MenuDateRange { From = DateTime.Today, To = DateTime.Today.AddDays(1), NoMenuSelection = false};
+
+        var dlgParams = new Dictionary<string, object>() {
+            { "DTO", dto }
+        };
+
+        var dlgRes = await DlgService.OpenAsync<Dlg_SelectMenus>(
+            "Select menus",
+            dlgParams,
+            new DialogOptions() { Width = "500px", Height = "350px" }
+        );
+
+        if (dlgRes is MenuDateRange)
+        {
+            var tmp = dlgRes as MenuDateRange;
+
+            var res = await Http.PostAsJsonAsync<MenuDateRange>("api/shoppingLists", tmp);
+
+            if (!res.IsSuccessStatusCode)
+            {
+                var errMsg = await res.Content.ReadAsStringAsync();
+                NotificationSvc.Notify(
+                    NotificationSeverity.Error,
+                    "Saving failed",
+                    errMsg,
+                    8000);
+                Console.WriteLine($"Save error: {errMsg}");
+            }
+            else
+            {
+                shoppingLists = await Http.GetFromJsonAsync<ShoppingList_GridDTO[]>("api/shoppingLists");
+                StateHasChanged();
+
+                Console.WriteLine(res);
+                var newShopingList = await res.Content.ReadFromJsonAsync<ShoppingList_DetailsDTO>();
+                // then, open details and activate edit
+                NavMan.NavigateTo($"shoppingListDetails/{newShopingList.Id}/{true}");
+            }
+
+ 
+        }
+
+    }
+}

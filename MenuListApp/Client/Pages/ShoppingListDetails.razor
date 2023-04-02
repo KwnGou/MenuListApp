@@ -1,0 +1,115 @@
+﻿@page "/ShoppingListDetails/{Id:int}/{OpenEdit:bool?}"
+
+@inject HttpClient Http
+@inject NotificationService NotificationSvc
+@inject DialogService DlgService
+@inject NavigationManager NavMan
+@inject TooltipService TooltipSvc
+
+
+<PageTitle>Shopping List Details</PageTitle>
+
+<h1>Shopping List Details</h1>
+
+@if (DTO == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <div class="row">
+        <div class="col-md-3 col-sm-12">
+            Date:
+        </div>
+        <div class="col-md-9 col-sm-12">
+            @(DTO.Date.ToString("d MMM yy"))
+        </div>
+    </div>
+@*    <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Left"
+                Data="@DTO.Ingredients" TItem="ShoppingListDetails_ListDTO">
+        <Columns>
+            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Ingredient" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Category" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.IngredientCategoryName))" />
+        </Columns>
+    </RadzenDataGrid>
+*@    <div class="row">
+        <div class="col-md-3 col-sm-12">
+            Comments:
+        </div>
+        <div class="col-md-9 col-sm-12">
+            <RadzenTextArea ReadOnly="@true" Rows="3" @bind-Value="@DTO.Comments" />
+        </div>
+    </div>
+    <RadzenButton Icon="add_circle_outline" Text="Edit Plate" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Edit())" />
+    <RadzenButton Icon="add_circle_outline" Text="Delete Plate" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Delete(DTO.Id))" />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public bool? OpenEdit { get; set; }
+
+    //private RadzenDataGrid<ShoppingListDetails_ListDTO> grid;
+    private ShoppingList_DetailsDTO DTO;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DTO = await Http.GetFromJsonAsync<ShoppingList_DetailsDTO>($"api/shoppingLists/{Id}");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (OpenEdit.HasValue && OpenEdit.Value)
+        {
+            await DlgService.Alert("Should open edit dialog");
+            //await Edit()
+        }
+    }
+
+    private async Task Edit()
+    {
+        //var dto = Plate_EditDTO.CreateFromDetailsDTO(DTO);
+
+        //var dlgParams = new Dictionary<string, object>() {
+        //    { "DTO", dto },
+        //    { "IsNew", false }
+        //};
+
+        //var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
+        //    "Edit Plate",
+        //    dlgParams,
+        //    new DialogOptions() { Width = "700px", Height = "500px" }
+        //);
+
+        //var bRes = res as bool?;
+        //if (bRes.HasValue && bRes.Value)
+        //{
+        //    DTO = await Http.GetFromJsonAsync<ShoppingList_DetailsDTO>($"api/Plates/{Id}");
+        //    StateHasChanged();
+        //}
+    }
+
+    private async Task Delete(int id)
+    {
+        //var res = await Http.DeleteAsync($"api/plates/{id}");
+
+        //if (!res.IsSuccessStatusCode)
+        //{
+        //    NotificationSvc.Notify(
+        //        NotificationSeverity.Error,
+        //        "Deletion failed",
+        //        await res.Content.ReadAsStringAsync(),
+        //        8000);
+        //}
+        //else
+        //{
+        //    NavMan.NavigateTo("plates");
+        //    StateHasChanged();
+        //}
+
+    }
+}

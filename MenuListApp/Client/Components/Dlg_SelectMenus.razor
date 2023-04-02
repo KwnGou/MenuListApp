@@ -1,0 +1,47 @@
+﻿@inject DialogService DialogSvc
+
+<RadzenTemplateForm TItem="MenuDateRange">
+    <RadzenRadioButtonList TValue="bool" @bind-Value="@DTO.NoMenuSelection" Orientation="Orientation.Horizontal">
+        <Items>
+            <RadzenRadioButtonListItem TValue="bool" Text="Menu date range" Value="@false" />
+            <RadzenRadioButtonListItem TValue="bool" Text="Do not initialise with menus" Value="@true" />
+        </Items>
+    </RadzenRadioButtonList>
+    <br />
+    <RadzenPanel>
+        <HeaderTemplate>
+            <strong>Menu dates</strong>
+        </HeaderTemplate>
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-2 offset-md-1 col-sm-12">
+                    From:
+                </div>
+                <div class="col-md-9 col-sm-12">
+                    <RadzenDatePicker TValue="DateTime" AllowClear="@true" DateFormat="d MMM yy" Min="@(DateTime.Today)"
+                                      @bind-Value="@DTO.From" Disabled=@(DTO.NoMenuSelection) />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 offset-md-1 col-sm-12">
+                    To:
+                </div>
+                <div class="col-md-9 col-sm-12">
+                    <RadzenDatePicker TValue="DateTime" AllowClear="@true" DateFormat="d MMM yy" Min="@(DateTime.Today)"
+                                      @bind-Value="@DTO.To" Disabled=@(DTO.NoMenuSelection) />
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenPanel>
+    <br />
+    <RadzenButton ButtonType="ButtonType.Button" Icon="check" Text="Ok"
+                  Click="@((args) => DialogSvc.Close(DTO))" />
+    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
+                  Click="@((args) => DialogSvc.Close(false))" />
+</RadzenTemplateForm>
+
+@code {
+    [Parameter]
+    public MenuDateRange DTO { get; set; }
+
+}

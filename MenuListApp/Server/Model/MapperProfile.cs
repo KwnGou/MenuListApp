@@ -48,8 +48,12 @@ namespace MenuListApp.Server.Model
                 .ForMember(dest => dest.MenuPlateName, opt => opt.MapFrom(src => src.PlateNavigation.Name));
 
             CreateMap<Menu_GridDTO, Menu>();
-        }
 
+            CreateMap<ShoppingList, ShoppingList_GridDTO>()
+                .ReverseMap();
+
+            CreateMap<ShoppingList, ShoppingList_DetailsDTO>();
+        }
     }
 
 }
