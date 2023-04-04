@@ -52,6 +52,7 @@ namespace MenuListApp.Server.Model
             CreateMap<ShoppingList, ShoppingList_GridDTO>()
                 .ReverseMap();
 
+            CreateMap<ShoppingListDetail, ShoppingListDetails_ListDTO>();
             CreateMap<ShoppingList, ShoppingList_DetailsDTO>();
         }
     }

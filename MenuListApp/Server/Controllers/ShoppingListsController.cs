@@ -58,8 +58,16 @@ namespace MenuListApp.Server.Controllers
                 return NotFound();
             }
 
+            await _context.Entry(entity).Collection(sl => sl.ShoppingListDetails).LoadAsync();
+
             var dto = _mapper.Map<ShoppingList_DetailsDTO>(entity);
 
+            var ingredients = await _context.Ingredients.ToListAsync();
+            foreach (var item in dto.ShoppingListDetails)
+            {
+                item.ObjectTypeName = ((ShoppingListObjectType)item.RelatedObjectType).ToString();
+                item.ObjectName = ingredients.First(i => i.Id == item.RelatedObjectId).Name;
+            }
 
             return Ok(dto);
         }
@@ -111,6 +119,23 @@ namespace MenuListApp.Server.Controllers
             }
             else
             {
+                // get plate ingerdients
+                var data = await _context.Menus
+                    .Where(m => m.Date > dto.From.Date && m.Date < dto.To.Date.AddDays(1))
+                    .Include(m => m.PlateNavigation)
+                    .ThenInclude(p => p.PlateIngredients)
+                    .SelectMany(m => m.PlateNavigation.PlateIngredients)
+                    .Select(i => new ShoppingListDetail
+                    {
+                        RelatedObjectId = i.IngredientId,
+                        RelatedObjectType = (int)ShoppingListObjectType.Ingredient,
+                        ShoppingList = entity
+                    })
+                    .Distinct()
+                    .ToListAsync();
+
+                _context.ShoppingListDetails.AddRange(data);
+
                 _context.ShoppingLists.Add(entity);
             }
 
@@ -125,6 +150,11 @@ namespace MenuListApp.Server.Controllers
             }
 
             var slDto = _mapper.Map<ShoppingList_DetailsDTO>(entity);
+            var ingredients = await _context.Ingredients.ToListAsync();
+            foreach (var item in slDto.ShoppingListDetails) {
+                item.ObjectTypeName = ((ShoppingListObjectType)item.RelatedObjectType).ToString();
+                item.ObjectName = ingredients.First(i => i.Id == item.RelatedObjectId).Name;
+            }
 
             return CreatedAtAction("GetShoppingList", new { id = slDto.Id }, slDto);
         }

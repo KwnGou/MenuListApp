@@ -128,6 +128,10 @@ namespace MenuListApp.Server.Controllers
                     throw;
                 }
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -201,7 +205,14 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.Ingredients.Remove(ingredient);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }

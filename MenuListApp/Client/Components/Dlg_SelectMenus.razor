@@ -1,4 +1,6 @@
 ﻿@inject DialogService DialogSvc
+@inject NotificationService NotificationSvc
+@inject HttpClient Http
 
 <RadzenTemplateForm TItem="MenuDateRange">
     <RadzenRadioButtonList TValue="bool" @bind-Value="@DTO.NoMenuSelection" Orientation="Orientation.Horizontal">
@@ -35,7 +37,7 @@
     </RadzenPanel>
     <br />
     <RadzenButton ButtonType="ButtonType.Button" Icon="check" Text="Ok"
-                  Click="@((args) => DialogSvc.Close(DTO))" />
+                  Click="@(async (args) => await Proceed(DTO))" />
     <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
                   Click="@((args) => DialogSvc.Close(false))" />
 </RadzenTemplateForm>
@@ -44,4 +46,21 @@
     [Parameter]
     public MenuDateRange DTO { get; set; }
 
+    private async Task Proceed(MenuDateRange dto)
+    {
+        if (!dto.NoMenuSelection)
+        {
+            var menuCount = await Http.GetFromJsonAsync<int>($"api/Menus/CountInDateRange?from={dto.From.ToString("yyyy-MM-dd")}&to={dto.To.ToString("yyyy-MM-dd")}");
+            if (menuCount == 0)
+            {
+                NotificationSvc.Notify(
+                    NotificationSeverity.Warning,
+                    "No menus available",
+                    "No menus exist for the selected date range",
+                    3000);
+                return;
+            }
+        }
+        DialogSvc.Close(DTO);
+    }
 }

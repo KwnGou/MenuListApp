@@ -139,7 +139,9 @@ else
         else
         {
             DialogSvc.Close(true);
-            NavMan.NavigateTo($"plateDetails/{dto.Id}");
+
+            var newPlate = await res.Content.ReadFromJsonAsync<Plate_EditDTO>();
+            NavMan.NavigateTo($"plateDetails/{newPlate.Id}");
         }
     }
 

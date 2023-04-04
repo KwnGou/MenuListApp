@@ -7,7 +7,6 @@ namespace MenuListApp.Server.Model
 {
     public partial class MenuListDBContext : DbContext
     {
-
         public MenuListDBContext(DbContextOptions<MenuListDBContext> options)
             : base(options)
         {
@@ -179,7 +178,6 @@ namespace MenuListApp.Server.Model
                 entity.HasOne(d => d.ShoppingList)
                     .WithMany(p => p.ShoppingListDetails)
                     .HasForeignKey(d => d.ShoppingListId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ShoppingListDetails_ShoppingList");
             });
 

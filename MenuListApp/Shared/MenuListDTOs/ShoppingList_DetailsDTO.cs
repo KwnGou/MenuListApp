@@ -14,5 +14,7 @@ namespace MenuListApp.Shared.MenuListDTOs
         public byte[]? Rowversion { get; set; }
 
         public List<ShoppingListDetails_ListDTO> ShoppingListDetails { get; set; }
+
+        public ShoppingList_DetailsDTO() => ShoppingListDetails = new List<ShoppingListDetails_ListDTO>();
     }
 }

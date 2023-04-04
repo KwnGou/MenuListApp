@@ -26,15 +26,16 @@ else
             @(DTO.Date.ToString("d MMM yy"))
         </div>
     </div>
-@*    <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Left"
-                Data="@DTO.Ingredients" TItem="ShoppingListDetails_ListDTO">
+                Data="@DTO.ShoppingListDetails" TItem="ShoppingListDetails_ListDTO">
         <Columns>
-            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Ingredient" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.Name))" />
-            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Category" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(Ingredient_GridDTO.IngredientCategoryName))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_ListDTO.ObjectName))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Type" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_ListDTO.ObjectTypeName))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Remarks" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_ListDTO.Remarks))" />
         </Columns>
     </RadzenDataGrid>
-*@    <div class="row">
+    <div class="row">
         <div class="col-md-3 col-sm-12">
             Comments:
         </div>
@@ -42,8 +43,8 @@ else
             <RadzenTextArea ReadOnly="@true" Rows="3" @bind-Value="@DTO.Comments" />
         </div>
     </div>
-    <RadzenButton Icon="add_circle_outline" Text="Edit Plate" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Edit())" />
-    <RadzenButton Icon="add_circle_outline" Text="Delete Plate" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Delete(DTO.Id))" />
+    <RadzenButton Icon="add_circle_outline" Text="Edit Shopping List" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Edit())" />
+    <RadzenButton Icon="add_circle_outline" Text="Delete Shopping List" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Delete(DTO.Id))" />
 }
 
 @code {
@@ -53,7 +54,7 @@ else
     [Parameter]
     public bool? OpenEdit { get; set; }
 
-    //private RadzenDataGrid<ShoppingListDetails_ListDTO> grid;
+    private RadzenDataGrid<ShoppingListDetails_ListDTO> grid;
     private ShoppingList_DetailsDTO DTO;
 
     protected override async Task OnInitializedAsync()

@@ -62,7 +62,7 @@ else
     private RadzenDataGrid<Menu_GridDTO> grid;
     private Menu_GridDTO[] menu;
     private Plate_EditDTO[] plates;
-    private DateTimeOffset currentDate = DateTimeOffset.Now;
+    private DateTimeOffset currentDate = DateTimeOffset.Now.AddDays(1);
 
     // plate filter
     private int? plateFilter;
@@ -80,7 +80,7 @@ else
 
     private async Task Add()
     {
-        await grid.InsertRow(new Menu_GridDTO() { Date = currentDate });
+        await grid.InsertRow(new Menu_GridDTO() { Date = currentDate.Date });
     }
 
     private async Task Save(Menu_GridDTO dto)

@@ -76,14 +76,14 @@ else
         await grid.EditRow(dto);
     }
 
-    private void Add()
+    private async Task Add()
     {
-        grid.InsertRow(new Ingredient_GridDTO());
+        await grid.InsertRow(new Ingredient_GridDTO());
     }
 
-    private void Save(Ingredient_GridDTO dto)
+    private async Task Save(Ingredient_GridDTO dto)
     {
-        grid.UpdateRow(dto);
+        await grid.UpdateRow(dto);
     }
 
     private async Task OnCategoryFilterChange()
@@ -108,7 +108,7 @@ else
         }
         //reload always
         ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingredients");
-        StateHasChanged();
+        await grid.Reload();
     }
 
     private async Task OnUpdateRow(Ingredient_GridDTO dto)
@@ -125,7 +125,7 @@ else
         }
         // reload always
         ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingredients");
-        StateHasChanged();
+        await grid.Reload();
     }
 
     private async Task Delete(Ingredient_GridDTO dto)
@@ -143,7 +143,7 @@ else
         else
         {
             ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingredients");
-            StateHasChanged();
+            await grid.Reload();
         }
 
     }

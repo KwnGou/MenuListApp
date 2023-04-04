@@ -39,12 +39,14 @@ namespace MenuListApp.Server.Controllers
             {
                 result = await _context.Menus
                     .Where(m => m.Plate == plateId.Value)
+                    .OrderBy(m => m.Date)
                     .Include(m => m.PlateNavigation)
                     .ToListAsync();
             }
             else
             {
                 result = await _context.Menus
+                    .OrderBy(m => m.Date)
                     .Include(m => m.PlateNavigation)
                     .ToListAsync();
             }
@@ -75,6 +77,14 @@ namespace MenuListApp.Server.Controllers
             var mapped = _mapper.Map<Menu_GridDTO>(menu);
 
             return Ok(mapped);
+        }
+
+        // GET: api/Menus/CountInDateRange
+        [HttpGet("CountInDateRange", Name = nameof(GetCountInDateRange))]
+        public async Task<ActionResult<int>> GetCountInDateRange([FromQuery] DateTime from, [FromQuery] DateTime to)
+        {
+            var result = await _context.Menus.Where(m => m.Date >= from.Date && m.Date < to.AddDays(1).Date).CountAsync();
+            return Ok(result);
         }
 
         // PUT: api/Menus/5
