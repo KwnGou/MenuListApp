@@ -73,23 +73,17 @@ namespace MenuListApp.Server.Controllers
             }
 
             // Data validation
-
             if (!(await _context.PlateCategories.AnyAsync(c => c.Id == dto.Id)))
             {
                 return BadRequest("Specified category id does not exist");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Category name is required");
+                return BadRequest(msg);
             }
 
-            dto.Name.Trim();
-
-            if (await _context.PlateCategories.AnyAsync(c => c.Name == dto.Name))
-            {
-                return BadRequest("Specified category name already exist");
-            }
 
             var entity = _mapper.Map<PlateCategory>(dto);
 
@@ -110,6 +104,10 @@ namespace MenuListApp.Server.Controllers
                     throw;
                 }
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -124,23 +122,24 @@ namespace MenuListApp.Server.Controllers
                 return Problem("Entity set 'MenuListDBContext.PlateCategories'  is null.");
             }
             // Validation
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Category name is required");
-            }
-
-            dto.Name.Trim();
-
-            if (await _context.PlateCategories.AnyAsync(c => c.Name == dto.Name))
-            {
-                return BadRequest("Specified category name already exist");
+                return BadRequest(msg);
             }
 
             var entity = _mapper.Map<PlateCategory>(dto);
 
             _context.PlateCategories.Add(entity);
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             var mapped = _mapper.Map<PlateCategory_GridDTO>(entity);
 
@@ -168,7 +167,14 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.PlateCategories.Remove(plateCategories);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -176,6 +182,23 @@ namespace MenuListApp.Server.Controllers
         private bool PlateCategoryExists(int id)
         {
             return _context.PlateCategories.Any(p => p.Id == id);
+        }
+        private async Task<(bool result, string message)> ValidateData(PlateCategory_GridDTO dto)
+        {
+
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                return (false, "Category name is required");
+            }
+
+            dto.Name.Trim();
+
+            if (await _context.PlateCategories.AnyAsync(c => c.Name == dto.Name))
+            {
+                return (false, "Specified category name already exist");
+            }
+
+            return (true, string.Empty);
         }
     }
 }

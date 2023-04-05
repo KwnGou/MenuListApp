@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using MenuListApp.Shared.MenuListDTOs;
 using MenuListApp.Server.Model;
+using System.Data;
 
 namespace MenuListApp.Server.Controllers
 {
@@ -42,7 +43,8 @@ namespace MenuListApp.Server.Controllers
                     .Include(c => c.ItemCategoryNavigation)
                     .ToListAsync();
             }
-            else {
+            else
+            {
                 result = await _context.Items
                     .Include(c => c.ItemCategoryNavigation)
                     .ToListAsync();
@@ -70,7 +72,7 @@ namespace MenuListApp.Server.Controllers
             }
 
             await _context.Entry(item).Reference(c => c.ItemCategoryNavigation).LoadAsync();
-  
+
             var mapped = _mapper.Map<Items_GridDTO>(item);
 
             return Ok(mapped);
@@ -87,25 +89,10 @@ namespace MenuListApp.Server.Controllers
                 return BadRequest();
             }
             // Data validation
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Item name is required");
-            }
-
-            dto.Name.Trim();
-
-            if (await _context.Items.AnyAsync(i => i.Name == dto.Name))
-            {
-                return BadRequest("Specified item name already exist");
-            }
-
-            if (dto.ItemCategory >= 0)
-            {
-                if (!(await _context.ItemsCategories.AnyAsync(c => c.Id == dto.ItemCategory)))
-                {
-                    return BadRequest("Specified category does not exist");
-                }
+                return BadRequest(msg);
             }
 
             var entity = _mapper.Map<Item>(dto);
@@ -127,6 +114,10 @@ namespace MenuListApp.Server.Controllers
                     throw;
                 }
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -143,44 +134,26 @@ namespace MenuListApp.Server.Controllers
             var entity = _mapper.Map<Item>(dto);
 
             // Data validation
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Item name is required");
-            }
-
-            dto.Name.Trim();
-
-            if (await _context.Items.AnyAsync(i => i.Name == dto.Name))
-            {
-                return BadRequest("Specified Item name already exist");
-            }
-
-            if (dto.ItemCategory > 0)
-            {
-                if (!(await _context.ItemsCategories.AnyAsync(c => c.Id == dto.ItemCategory)))
-                {
-                    return BadRequest("Specified category does not exist");
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(dto.ItemCategoryName))
-                {
-                    var newCat = new ItemsCategory { Name = dto.ItemCategoryName.Trim() };
-                    _context.ItemsCategories.Add(newCat);
-
-                    entity.ItemCategoryNavigation = newCat;
-                }
+                return BadRequest(msg);
             }
 
             _context.Items.Add(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
+
 
             await _context.Entry(entity).Reference(c => c.ItemCategoryNavigation).LoadAsync();
 
             var mapped = _mapper.Map<Items_GridDTO>(entity);
-
             return CreatedAtAction("GetItem", new { id = mapped.Id }, mapped);
         }
 
@@ -200,7 +173,14 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.Items.Remove(item);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -208,6 +188,28 @@ namespace MenuListApp.Server.Controllers
         private bool ItemExists(int id)
         {
             return _context.Items.Any(e => e.Id == id);
+        }
+
+        private async Task<(bool result, string message)> ValidateData(Items_GridDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                return (false, "Item name is required");
+            }
+
+            dto.Name.Trim();
+
+            if (await _context.Items.AnyAsync(i => i.Name == dto.Name))
+            {
+                return (false, "Specified item name already exist");
+            }
+
+            if (!(await _context.ItemsCategories.AnyAsync(c => c.Id == dto.ItemCategory)))
+            {
+                return (false, "Specified category does not exist");
+            }
+
+            return (true, string.Empty);
         }
     }
 }

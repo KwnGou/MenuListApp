@@ -16,7 +16,7 @@ namespace MenuListApp.Server.Controllers
     public class IngredientsController : ControllerBase
     {
         private readonly MenuListDBContext _context;
-        private readonly IMapper _mapper;   
+        private readonly IMapper _mapper;
 
         public IngredientsController(MenuListDBContext context, IMapper mapper)
         {
@@ -88,25 +88,10 @@ namespace MenuListApp.Server.Controllers
             }
 
             // Data validation
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Ingredient name is required");
-            }
-
-            dto.Name.Trim();
-
-            if (await _context.Ingredients.AnyAsync(i => i.Name == dto.Name))
-            {
-                return BadRequest("Specified Ingredient name already exist");
-            }
-
-            if (dto.IngredientCategory >= 0)
-            {
-                if (!(await _context.IngredientsCategories.AnyAsync(c => c.Id == dto.IngredientCategory)))
-                {
-                    return BadRequest("Specified category does not exist");
-                }
+                return BadRequest(msg);
             }
 
             var entity = _mapper.Map<Ingredient>(dto);
@@ -149,38 +134,28 @@ namespace MenuListApp.Server.Controllers
             var entity = _mapper.Map<Ingredient>(dto);
 
             // Data validation
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Ingredient name is required");
+                return BadRequest(msg);
             }
 
-            dto.Name.Trim();
-
-            if (await _context.Ingredients.AnyAsync(i => i.Name == dto.Name))
-            {
-                return BadRequest("Specified ingredient name already exist");
-            }
-
-            if (dto.IngredientCategory > 0)
-            {
-                if (!(await _context.IngredientsCategories.AnyAsync(c => c.Id == dto.IngredientCategory)))
-                {
-                    return BadRequest("Specified category does not exist");
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(dto.IngredientCategoryName))
-                {
-                    var newCat = new IngredientsCategory { Name = dto.IngredientCategoryName.Trim() };
-                    _context.IngredientsCategories.Add(newCat);
-
-                    entity.IngredientCategoryNavigation = newCat;
-                }
-            }
             _context.Ingredients.Add(entity);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException) 
+            {
+                if (!IngredientExists(dto.Id))
+                {
+                    return NotFound();
+                }
+                else 
+                {
+                    throw;
+                }
+            }
 
             await _context.Entry(entity).Reference(c => c.IngredientCategoryNavigation).LoadAsync();
 
@@ -220,6 +195,27 @@ namespace MenuListApp.Server.Controllers
         private bool IngredientExists(int id)
         {
             return _context.Ingredients.Any(i => i.Id == id);
+        }
+        private async Task<(bool result, string message)> ValidateData(Ingredient_GridDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                return (false, "Ingredient name is required");
+            }
+
+            dto.Name.Trim();
+
+            if (await _context.Ingredients.AnyAsync(i => i.Name == dto.Name))
+            {
+                return (false, "Specified ingredient name already exist");
+            }
+
+            if (!(await _context.IngredientsCategories.AnyAsync(c => c.Id == dto.IngredientCategory)))
+            {
+                return (false, "Specified category does not exist");
+            }
+
+            return (true, string.Empty);
         }
     }
 }

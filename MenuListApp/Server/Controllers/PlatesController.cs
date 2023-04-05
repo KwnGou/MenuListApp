@@ -98,25 +98,10 @@ namespace MenuListApp.Server.Controllers
                 return BadRequest();
             }
             // Data validation
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Plate name is required");
-            }
-
-            dto.Name.Trim();
-
-            if (await _context.Plates.AnyAsync(i => i.Name == dto.Name && i.Id != dto.Id))
-            {
-                return BadRequest("Specified Plate name already exist");
-            }
-
-            if (dto.PlateCategory > 0)
-            {
-                if (!(await _context.PlateCategories.AnyAsync(c => c.Id == dto.PlateCategory)))
-                {
-                    return BadRequest("Specified category does not exist");
-                }
+                return BadRequest(msg);
             }
 
             var entity = _mapper.Map<Plate>(dto);
@@ -151,6 +136,10 @@ namespace MenuListApp.Server.Controllers
                     throw;
                 }
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -167,35 +156,10 @@ namespace MenuListApp.Server.Controllers
             var entity = _mapper.Map<Plate>(dto);
 
             // Data validation
-
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            var (res, msg) = await ValidateData(dto);
+            if (!res)
             {
-                return BadRequest("Plate name is required");
-            }
-
-            dto.Name.Trim();
-
-            if (await _context.Plates.AnyAsync(p => p.Name == dto.Name && p.Id != dto.Id))
-            {
-                return BadRequest("Specified Plate name already exist");
-            }
-
-            if (dto.PlateCategory > 0)
-            {
-                if (!(await _context.PlateCategories.AnyAsync(c => c.Id == dto.PlateCategory)))
-                {
-                    return BadRequest("Specified category does not exist");
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(dto.PlateCategoryName))
-                {
-                    var newCat = new PlateCategory { Name = dto.PlateCategoryName.Trim() };
-                    _context.PlateCategories.Add(newCat);
-
-                    entity.PlateCategoryNavigation = newCat;
-                }
+                return BadRequest(msg);
             }
 
             _context.Plates.Add(entity);
@@ -205,13 +169,18 @@ namespace MenuListApp.Server.Controllers
                 _context.PlateIngredients.Add(item);
             }
 
-
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             await _context.Entry(entity).Reference(c => c.PlateCategoryNavigation).LoadAsync();
 
             var mapped = _mapper.Map<Plate_EditDTO>(entity);
-
             return CreatedAtAction("GetPlate", new { id = mapped.Id }, mapped);
         }
 
@@ -231,7 +200,14 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.Plates.Remove(plate);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -239,6 +215,28 @@ namespace MenuListApp.Server.Controllers
         private bool PlateExists(int id)
         {
             return _context.Plates.Any(p => p.Id == id);
+        }
+
+        private async Task<(bool result, string message)> ValidateData(Plate_EditDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                return (false, "Plate name is required");
+            }
+
+            dto.Name.Trim();
+
+            if (await _context.Plates.AnyAsync(i => i.Name == dto.Name && i.Id != dto.Id))
+            {
+                return (false, "Specified Plate name already exist");
+            }
+
+            if (!(await _context.PlateCategories.AnyAsync(c => c.Id == dto.PlateCategory)))
+            {
+                return (false, "Specified category does not exist");
+            }
+
+            return (true, string.Empty);
         }
     }
 }

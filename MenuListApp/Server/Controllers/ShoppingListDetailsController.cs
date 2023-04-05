@@ -76,6 +76,10 @@ namespace MenuListApp.Server.Controllers
                     throw;
                 }
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -90,7 +94,14 @@ namespace MenuListApp.Server.Controllers
               return Problem("Entity set 'MenuListDBContext.ShoppingListDetails'  is null.");
           }
             _context.ShoppingListDetails.Add(shoppingListDetail);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return CreatedAtAction("GetShoppingListDetail", new { id = shoppingListDetail.Id }, shoppingListDetail);
         }
@@ -110,7 +121,14 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.ShoppingListDetails.Remove(shoppingListDetail);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }

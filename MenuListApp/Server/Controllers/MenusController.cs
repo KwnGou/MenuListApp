@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using MenuListApp.Shared.MenuListDTOs;
 using MenuListApp.Server.Model;
+using System.Data;
 
 namespace MenuListApp.Server.Controllers
 {
@@ -124,6 +125,10 @@ namespace MenuListApp.Server.Controllers
                     throw;
                 }
             }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
@@ -156,7 +161,14 @@ namespace MenuListApp.Server.Controllers
             var entity = _mapper.Map<Menu>(dto);
 
             _context.Menus.Add(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             await _context.Entry(entity).Reference(m => m.PlateNavigation).LoadAsync();
 
@@ -182,7 +194,14 @@ namespace MenuListApp.Server.Controllers
             }
 
             _context.Menus.Remove(menu);
-            await _context.SaveChangesAsync();
+            try 
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
             return NoContent();
         }
