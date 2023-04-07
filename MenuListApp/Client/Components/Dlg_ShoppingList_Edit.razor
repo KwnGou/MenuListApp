@@ -1,0 +1,215 @@
+﻿@inject HttpClient Http
+@inject DialogService DialogSvc
+@inject NotificationService NotificationSvc
+@inject NavigationManager NavMan
+
+@if (isLoading)
+{
+    <em>Loading ...</em>
+}
+else
+{
+    <RadzenTemplateForm TItem="ShoppingList_EditDTO" Data="@DTO" Submit="@(async (args) => await Save(DTO))">
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Shopping List">
+                    <div class="row pb-2">
+                        <div class="col-md-3 col-sm-12">
+                            Date:
+                        </div>
+                        <div class="col-md-9 col-sm-12">
+                            @(DTO.Date.ToString("d MMM yy"))
+                        </div>
+                    </div>
+                    <div class="row pt-2 pb-2">
+                        <div class="col-md-3 col-sm-12">
+                            Comments:
+                        </div>
+                        <div class="col-md-9 col-sm-12">
+                            <RadzenTextArea Rows="3" @bind-Value="@DTO.Comments" Style="width:80%" />
+                        </div>
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="List items">
+                    <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="5" AllowPaging="@true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Left"
+                                Data="@DTO.ShoppingListDetails" TItem="ShoppingListDetails_GridDTO"
+                                EditMode="DataGridEditMode.Single" RowUpdate="@OnUpdateRow">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Title="Name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_GridDTO.ObjectName))" />
+                            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Title="Type" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_GridDTO.ObjectTypeName))" />
+                            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Title="Remarks" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_GridDTO.Remarks))">
+                                <EditTemplate Context="li">
+                                    <RadzenTextBox Name="rem" @bind-Value="@li.Remarks" Style="width:100%" />
+                                    <RadzenLengthValidator Component="rem" Max="100" Text="Remarks can be up to 100 characters" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                                <Template Context="li">
+                                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await EditListItem(li)" />
+                                </Template>
+                                <EditTemplate Context="li">
+                                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await SaveListItem(li)" />
+                                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="(args) => grid.CancelEditRow(li)" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
+                                <Template Context="li">
+                                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await DeleteListItem(li)" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                    <div class="row">
+                        <div class="col-6">
+                            <RadzenDropDownDataGrid TValue="int?" Data="@ingredients"
+                                                @bind-SelectedItem="@selectedIngredient" @bind-Value="@selectedIngredientId"
+                                                ValueProperty="@(nameof(Ingredient_GridDTO.Id))" Style="width:100%"
+                                                AllowClear="@true" AllowFilteringByAllStringColumns="@true" AllowFiltering=@true
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="@(nameof(Ingredient_GridDTO.Name))" Title="Ingredient" />
+                                    <RadzenDropDownDataGridColumn Property="@(nameof(Ingredient_GridDTO.IngredientCategoryName))" Title="Ingr. Cat." />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                            <RadzenButton Text="Add ingredient" ButtonStyle="ButtonStyle.Primary" Icon="add"
+                                      Disabled="@(!selectedIngredientId.HasValue)" Click="@AddIngredient" />
+                        </div>
+                        <div class="col-6">
+                            <RadzenDropDownDataGrid TValue="int?" Data="@otherItems"
+                                                @bind-SelectedItem="@selectedOtherItem" @bind-Value="@selectedOtherItemId"
+                                                ValueProperty="@(nameof(Items_GridDTO.Id))" Style="width:100%"
+                                                AllowClear="@true" AllowFilteringByAllStringColumns="@true" AllowFiltering=@true
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="@(nameof(Items_GridDTO.Name))" Title="Ingredient" />
+                                    <RadzenDropDownDataGridColumn Property="@(nameof(Items_GridDTO.ItemCategoryName))" Title="Item Cat." />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                            <RadzenButton Text="Add item" ButtonStyle="ButtonStyle.Primary" Icon="add"
+                                      Disabled="@(!selectedOtherItemId.HasValue)" Click="@AddItem" />
+                        </div>
+                    </div>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+        <br />
+        <div class="row" style="position:absolute;bottom:0;width:100%">
+            <div class="col-12 p-2">
+                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
+                          Click="@((args) => DialogSvc.Close(false))" />
+            </div>
+        </div>
+    </RadzenTemplateForm>
+}
+
+@code {
+    [Parameter]
+    public ShoppingList_EditDTO DTO { get; set; }
+
+    private RadzenDataGrid<ShoppingListDetails_GridDTO> grid;
+    private bool isLoading;
+
+    private Ingredient_GridDTO[] ingredients;
+    private object selectedIngredient;
+    private int? selectedIngredientId;
+
+    private Items_GridDTO[] otherItems;
+    private object selectedOtherItem;
+    private int? selectedOtherItemId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/ingredients");
+        otherItems = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/items");
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task Save(ShoppingList_EditDTO dto)
+    {
+        Console.WriteLine("Saving");
+        HttpResponseMessage res;
+
+        res = await Http.PutAsJsonAsync<ShoppingList_EditDTO>($"api/shoppingLists/{dto.Id}", dto);
+
+        if (!res.IsSuccessStatusCode)
+        {
+            var errMsg = await res.Content.ReadAsStringAsync();
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Saving failed",
+                errMsg,
+                8000);
+            Console.WriteLine($"Save error: {errMsg}");
+        }
+        else
+        {
+            DialogSvc.Close(true);
+        }
+    }
+
+    private async Task AddIngredient()
+    {
+        if (selectedIngredientId.HasValue)
+        {
+            var ing = selectedIngredient as Ingredient_GridDTO;
+            DTO.ShoppingListDetails.Add(new ShoppingListDetails_GridDTO
+                {
+                    RelatedObjectId = ing.Id,
+                    RelatedObjectType = (int)ShoppingListObjectType.Ingredient,
+                    ObjectName = ing.Name,
+                    ObjectTypeName = ((ShoppingListObjectType)ShoppingListObjectType.Ingredient).ToString(),
+                    ShoppingListId = DTO.Id
+                });
+            await grid.Reload();
+        }
+    }
+    private async Task AddItem()
+    {
+        if (selectedOtherItemId.HasValue)
+        {
+            var itm = selectedOtherItem as Items_GridDTO;
+            DTO.ShoppingListDetails.Add(new ShoppingListDetails_GridDTO
+                {
+                    RelatedObjectId = itm.Id,
+                    RelatedObjectType = (int)ShoppingListObjectType.Item,
+                    ObjectName = itm.Name,
+                    ObjectTypeName = ((ShoppingListObjectType)ShoppingListObjectType.Item).ToString(),
+                    ShoppingListId = DTO.Id
+                });
+            await grid.Reload();
+        }
+    }
+
+    #region List item editing
+
+    private async Task EditListItem(ShoppingListDetails_GridDTO dto)
+    {
+        await grid.EditRow(dto);
+    }
+
+    private async Task SaveListItem(ShoppingListDetails_GridDTO dto)
+    {
+        await grid.UpdateRow(dto);
+        await grid.Reload();
+    }
+
+    private async Task OnUpdateRow(ShoppingListDetails_GridDTO dto)
+    {
+        /* nothing to do */
+    }
+
+    private async Task DeleteListItem(ShoppingListDetails_GridDTO dto)
+    {
+        DTO.ShoppingListDetails.Remove(dto);
+        await grid.Reload();
+    }
+
+    #endregion
+}

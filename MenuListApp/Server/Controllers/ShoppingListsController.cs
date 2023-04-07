@@ -72,36 +72,47 @@ namespace MenuListApp.Server.Controllers
             return Ok(dto);
         }
 
-        //// PUT: api/ShoppingLists/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutShoppingList(int id, ShoppingList entity)
-        //{
-        //    if (id != entity.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        // PUT: api/ShoppingLists/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutShoppingList(int id, ShoppingList_EditDTO dto)
+        {
+            if (id != dto.Id)
+            {
+                return BadRequest();
+            }
 
-        //    _context.Entry(entity).State = EntityState.Modified;
+            var entity = _mapper.Map<ShoppingList>(dto);
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ShoppingListExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+            _context.Entry(entity).State = EntityState.Modified;
 
-        //    return NoContent();
-        //}
+            // do line items
+            var existing = await _context.ShoppingListDetails.Where(sld => sld.ShoppingListId == entity.Id).ToListAsync();
+            if (existing.Any())
+            {
+                _context.ShoppingListDetails.RemoveRange(existing);
+            }
+            var newListItems = _mapper.Map<ShoppingListDetail[]>(dto.ShoppingListDetails);
+            _context.ShoppingListDetails.AddRange(newListItems);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ShoppingListExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
 
         // POST: api/ShoppingLists
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -133,6 +144,43 @@ namespace MenuListApp.Server.Controllers
                     })
                     .Distinct()
                     .ToListAsync();
+
+                //var ingList = await _context.Menus
+                //    .Where(m => m.Date > dto.From.Date && m.Date < dto.To.Date.AddDays(1))
+                //    .Include(m => m.PlateNavigation)
+                //    .ThenInclude(p => p.PlateIngredients)
+                //    .SelectMany(m => m.PlateNavigation.PlateIngredients)
+                //    .ToListAsync();
+
+                //var data = new List<ShoppingListDetail>();
+                //foreach (var item in ingList)
+                //{
+                //    var existing = data.FirstOrDefault(ex =>
+                //        ex.RelatedObjectType == (int)ShoppingListObjectType.Ingredient
+                //        && ex.RelatedObjectId == item.IngredientId);
+                //    if (existing != null)
+                //    {
+                //        if (string.IsNullOrWhiteSpace(existing.Remarks))
+                //        {
+                //            existing.Remarks = "(2)";
+                //        }
+                //        else
+                //        {
+                //            var cnt = int.Parse(existing.Remarks[1..^1]);
+                //            existing.Remarks = $"({cnt+1})";
+                //        }
+                //    }
+                //    else
+                //    {
+                //        var sld = new ShoppingListDetail
+                //        {
+                //            RelatedObjectId = item.IngredientId,
+                //            RelatedObjectType = (int)ShoppingListObjectType.Ingredient,
+                //            ShoppingList = entity
+                //        };
+                //        data.Add(sld);
+                //    }
+                //}
 
                 _context.ShoppingListDetails.AddRange(data);
 

@@ -21,5 +21,9 @@ namespace MenuListApp.Shared.MenuListDTOs
         public string? ItemCategoryName { get; set; }
 
         public byte[]? Rowversion { get; set; }
+        public override string ToString()
+        {
+            return $"{Name} ({ItemCategoryName})";
+        }
     }
 }

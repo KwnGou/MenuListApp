@@ -33,7 +33,7 @@ else
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="IngredientCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
+                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="async (args) => await Delete(dto)" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>

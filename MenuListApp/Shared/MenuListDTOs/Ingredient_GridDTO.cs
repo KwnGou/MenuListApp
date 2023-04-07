@@ -21,5 +21,10 @@ namespace MenuListApp.Shared.MenuListDTOs
         public string Name { get; set; } = null!;
 
         public byte[]? Rowversion { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Name} ({IngredientCategoryName})";
+        }
     }
 }

@@ -17,8 +17,7 @@
 }
 else
 {
-
-    <div class="row">
+    <div class="row pb-2">
         <div class="col-md-3 col-sm-12">
             Date:
         </div>
@@ -28,19 +27,19 @@ else
     </div>
     <RadzenDataGrid @ref="@grid" AllowFiltering="@false" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Left"
-                Data="@DTO.ShoppingListDetails" TItem="ShoppingListDetails_ListDTO">
+                Data="@DTO.ShoppingListDetails" TItem="ShoppingListDetails_GridDTO">
         <Columns>
-            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_ListDTO.ObjectName))" />
-            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Type" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_ListDTO.ObjectTypeName))" />
-            <RadzenDataGridColumn TItem="ShoppingListDetails_ListDTO" Title="Remarks" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_ListDTO.Remarks))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Title="Name" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_GridDTO.ObjectName))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Title="Type" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_GridDTO.ObjectTypeName))" />
+            <RadzenDataGridColumn TItem="ShoppingListDetails_GridDTO" Title="Remarks" TextAlign="TextAlign.Left" Filterable="@true" Property="@(nameof(ShoppingListDetails_GridDTO.Remarks))" />
         </Columns>
     </RadzenDataGrid>
-    <div class="row">
+    <div class="row pt-2 pb-2">
         <div class="col-md-3 col-sm-12">
             Comments:
         </div>
         <div class="col-md-9 col-sm-12">
-            <RadzenTextArea ReadOnly="@true" Rows="3" @bind-Value="@DTO.Comments" />
+            <RadzenTextArea ReadOnly="@true" Rows="3" @bind-Value="@DTO.Comments" Style="width:80%" />
         </div>
     </div>
     <RadzenButton Icon="add_circle_outline" Text="Edit Shopping List" ButtonStyle="ButtonStyle.Secondary" Click="@(async (args) => await Edit())" />
@@ -54,7 +53,7 @@ else
     [Parameter]
     public bool? OpenEdit { get; set; }
 
-    private RadzenDataGrid<ShoppingListDetails_ListDTO> grid;
+    private RadzenDataGrid<ShoppingListDetails_GridDTO> grid;
     private ShoppingList_DetailsDTO DTO;
 
     protected override async Task OnInitializedAsync()
@@ -73,25 +72,24 @@ else
 
     private async Task Edit()
     {
-        //var dto = Plate_EditDTO.CreateFromDetailsDTO(DTO);
+        var dto = ShoppingList_EditDTO.CreateFromDetailsDTO(DTO);
 
-        //var dlgParams = new Dictionary<string, object>() {
-        //    { "DTO", dto },
-        //    { "IsNew", false }
-        //};
+        var dlgParams = new Dictionary<string, object>() {
+            { "DTO", dto }
+        };
 
-        //var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
-        //    "Edit Plate",
-        //    dlgParams,
-        //    new DialogOptions() { Width = "700px", Height = "500px" }
-        //);
+        var res = await DlgService.OpenAsync<Dlg_ShoppingList_Edit>(
+            "Edit Shopping list",
+            dlgParams,
+            new DialogOptions() { Width = "800px", Height = "90%" }
+        );
 
-        //var bRes = res as bool?;
-        //if (bRes.HasValue && bRes.Value)
-        //{
-        //    DTO = await Http.GetFromJsonAsync<ShoppingList_DetailsDTO>($"api/Plates/{Id}");
-        //    StateHasChanged();
-        //}
+        var bRes = res as bool?;
+        if (bRes.HasValue && bRes.Value)
+        {
+            DTO = await Http.GetFromJsonAsync<ShoppingList_DetailsDTO>($"api/ShoppingLists/{Id}");
+            StateHasChanged();
+        }
     }
 
     private async Task Delete(int id)

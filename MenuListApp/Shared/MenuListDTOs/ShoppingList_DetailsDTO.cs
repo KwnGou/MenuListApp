@@ -13,8 +13,8 @@ namespace MenuListApp.Shared.MenuListDTOs
         public string? Comments { get; set; }
         public byte[]? Rowversion { get; set; }
 
-        public List<ShoppingListDetails_ListDTO> ShoppingListDetails { get; set; }
+        public List<ShoppingListDetails_GridDTO> ShoppingListDetails { get; set; }
 
-        public ShoppingList_DetailsDTO() => ShoppingListDetails = new List<ShoppingListDetails_ListDTO>();
+        public ShoppingList_DetailsDTO() => ShoppingListDetails = new List<ShoppingListDetails_GridDTO>();
     }
 }
