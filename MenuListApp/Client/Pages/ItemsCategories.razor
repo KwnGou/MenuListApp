@@ -128,6 +128,6 @@ else
             itemsCategories = await Http.GetFromJsonAsync<ItemsCategories_GridDTO[]>("api/ItemsCategories");
             StateHasChanged();
         }
-
+        isEditing = false;
     }
 }

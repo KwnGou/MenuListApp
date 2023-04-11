@@ -154,6 +154,7 @@ else
             ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingredients");
             await grid.Reload();
         }
+        isEditing = false;
 
     }
 }

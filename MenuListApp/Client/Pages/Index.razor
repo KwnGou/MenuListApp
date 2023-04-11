@@ -67,7 +67,7 @@ else
 
     // plate filter
     private int? plateFilter;
-    
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,6 +158,7 @@ else
             menu = await Http.GetFromJsonAsync<Menu_GridDTO[]>("api/Menus");
             StateHasChanged();
         }
+        isEditing = false;
 
     }
 }

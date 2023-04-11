@@ -154,7 +154,7 @@ else
             items = await Http.GetFromJsonAsync<Items_GridDTO[]>("api/Items");
             StateHasChanged();
         }
-
+        isEditing = false;
     }
 
 

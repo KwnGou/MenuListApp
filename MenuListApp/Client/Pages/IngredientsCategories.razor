@@ -127,6 +127,6 @@ else
             ingredientsCategories = await Http.GetFromJsonAsync<IngredientCategory_GridDTO[]>("api/IngredientsCategories");
             StateHasChanged();
         }
-
+        isEditing = false;
     }
 }
