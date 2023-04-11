@@ -76,7 +76,7 @@ else
         DTO = await Http.GetFromJsonAsync<Plate_DetailsDTO>($"api/Plates/{Id}");
     }
 
-    async Task EditPlate()
+    private async Task EditPlate()
     {
         var dto = Plate_EditDTO.CreateFromDetailsDTO(DTO);
 

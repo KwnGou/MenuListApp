@@ -39,11 +39,11 @@ else
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Menu_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Edit(dto))" />
                 </Template>
                 <EditTemplate Context="dto">
-                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => Save(dto)" />
-                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => grid.CancelEditRow(dto))" />
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Save(dto))" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(dto))" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Menu_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
@@ -54,7 +54,7 @@ else
         </Columns>
     </RadzenDataGrid>
     <br />
-    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" Disabled="@isEditing" />
 }
 
 @code
@@ -63,9 +63,11 @@ else
     private Menu_GridDTO[] menu;
     private Plate_EditDTO[] plates;
     private DateTimeOffset currentDate = DateTimeOffset.Now.AddDays(1);
+    private bool isEditing = false;
 
     // plate filter
     private int? plateFilter;
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,17 +77,27 @@ else
 
     private async Task Edit(Menu_GridDTO dto)
     {
+        isEditing = true;
         await grid.EditRow(dto);
     }
 
     private async Task Add()
     {
+        isEditing = true;
         await grid.InsertRow(new Menu_GridDTO() { Date = currentDate.Date });
     }
 
     private async Task Save(Menu_GridDTO dto)
     {
         await grid.UpdateRow(dto);
+        isEditing = false;
+    }
+
+
+    private void CancelEdit(Menu_GridDTO dto)
+    {
+        grid.CancelEditRow(dto);
+        isEditing = false;
     }
 
     private async Task OnPlateFilterChange()

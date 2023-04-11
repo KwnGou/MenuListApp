@@ -36,10 +36,14 @@
         </ChildContent>
     </RadzenPanel>
     <br />
-    <RadzenButton ButtonType="ButtonType.Button" Icon="check" Text="Ok"
-                  Click="@(async (args) => await Proceed(DTO))" />
-    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
-                  Click="@((args) => DialogSvc.Close(false))" />
+    <div class="row position-absolute bottom-0 end-0 p-2">
+        <div class="col-12">
+            <RadzenButton ButtonType="ButtonType.Button" Icon="check" Text="Ok"
+                          Click="@(async (args) => await Proceed(DTO))" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
+                          Click="@((args) => DialogSvc.Close(false))" />
+        </div>
+    </div>
 </RadzenTemplateForm>
 
 @code {

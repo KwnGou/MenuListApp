@@ -24,11 +24,11 @@ else
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await Edit(dto)" />
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Edit(dto))" />
                 </Template>
                 <EditTemplate Context="dto">
-                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="async (args) => await Save(dto)" />
-                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="(args) => grid.CancelEditRow(dto)" />
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Save(dto))" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(dto))" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
@@ -39,12 +39,13 @@ else
         </Columns>
     </RadzenDataGrid>
     <br />
-    <RadzenButton Icon="add_circle_outline" Text="Add New Category" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Category" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" Disabled="@isEditing"/>
 }
 
 @code {
     private RadzenDataGrid<PlateCategory_GridDTO> grid;
     private PlateCategory_GridDTO[] platesCategories;
+    private bool isEditing = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,17 +54,26 @@ else
 
     private async Task Edit(PlateCategory_GridDTO dto)
     {
+        isEditing = true;
         await grid.EditRow(dto);
     }
 
     private async Task Add()
     {
+        isEditing = true;
         await grid.InsertRow(new PlateCategory_GridDTO());
     }
 
     private async Task Save(PlateCategory_GridDTO dto)
     {
         await grid.UpdateRow(dto);
+        isEditing = false;
+    }
+
+    private void CancelEdit(PlateCategory_GridDTO dto)
+    {
+        grid.CancelEditRow(dto);
+        isEditing = false;
     }
 
     private async Task OnCreateRow(PlateCategory_GridDTO dto)

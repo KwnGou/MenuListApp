@@ -13,7 +13,7 @@
 }
 else
 {
-    <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true" 
+    <RadzenDataGrid @ref="@grid" AllowFiltering="@true" AllowSorting="@true" AllowColumnResize="@true" PageSize="10" AllowPaging="@true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" PagerHorizontalAlign="HorizontalAlign.Center"
                 EditMode="DataGridEditMode.Single" Data="@ingredients" TItem="Ingredient_GridDTO" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
         <Columns>
@@ -27,23 +27,23 @@ else
                     @dto.IngredientCategoryName
                 </Template>
                 <EditTemplate Context="dto">
-                    <RadzenDropDown TValue="int" Multiple="@false" Data="@ingredientsCategories" Placeholder="Select category" 
-                        TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))"
+                    <RadzenDropDown TValue="int" Multiple="@false" Data="@ingredientsCategories" Placeholder="Select category"
+                                TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))"
                                 @bind-Value="@dto.IngredientCategory" />
                 </EditTemplate>
                 <FilterTemplate Context="dto">
-                    <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@ingredientsCategories" 
-                                TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))" 
-                                @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()"/>
+                    <RadzenDropDown TValue="int?" AllowClear="true" Multiple="@false" Data="@ingredientsCategories"
+                                TextProperty="@(nameof(IngredientCategory_GridDTO.Name))" ValueProperty="@(nameof(IngredientCategory_GridDTO.Id))"
+                                @bind-Value="@catFilter" Change="async (args) => await OnCategoryFilterChange()" />
                 </FilterTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Ingredient_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="(args) => Edit(dto)" />
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Edit(dto))" />
                 </Template>
                 <EditTemplate Context="dto">
-                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="(args) => Save(dto)" />
-                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => grid.CancelEditRow(dto))" />
+                    <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Save(dto))" />
+                    <RadzenButton icon="cancel" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary" Click="@((args) => CancelEdit(dto))" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Ingredient_GridDTO" Filterable="@false" Sortable="@false" TextAlign="TextAlign.Center">
@@ -54,14 +54,14 @@ else
         </Columns>
     </RadzenDataGrid>
     <br />
-    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" />
+    <RadzenButton Icon="add_circle_outline" Text="Add New Item" ButtonStyle="ButtonStyle.Success" Click="(args) => Add()" Disabled="@isEditing" />
 }
 
 @code {
     private RadzenDataGrid<Ingredient_GridDTO> grid;
     private IngredientCategory_GridDTO[] ingredientsCategories;
     private Ingredient_GridDTO[] ingredients;
-
+    private bool isEditing = false;
     // category filter
     private int? catFilter;
 
@@ -71,25 +71,34 @@ else
         ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>("api/Ingredients");
     }
 
-    async Task Edit(Ingredient_GridDTO dto)
+    private async Task Edit(Ingredient_GridDTO dto)
     {
+        isEditing = true;
         await grid.EditRow(dto);
     }
 
     private async Task Add()
     {
+        isEditing = true;
         await grid.InsertRow(new Ingredient_GridDTO());
     }
 
     private async Task Save(Ingredient_GridDTO dto)
     {
         await grid.UpdateRow(dto);
+        isEditing = false;
     }
 
     private async Task OnCategoryFilterChange()
     {
         grid.Reset();
         ingredients = await Http.GetFromJsonAsync<Ingredient_GridDTO[]>($"api/Ingredients?categoryId={catFilter}");
+    }
+
+    private void CancelEdit(Ingredient_GridDTO dto)
+    {
+        grid.CancelEditRow(dto);
+        isEditing = false;
     }
 
     private async Task OnCreateRow(Ingredient_GridDTO dto)

@@ -63,10 +63,18 @@ namespace MenuListApp.Server.Controllers
             var dto = _mapper.Map<ShoppingList_DetailsDTO>(entity);
 
             var ingredients = await _context.Ingredients.ToListAsync();
+            var items = await _context.Items.ToListAsync();
             foreach (var item in dto.ShoppingListDetails)
             {
                 item.ObjectTypeName = ((ShoppingListObjectType)item.RelatedObjectType).ToString();
-                item.ObjectName = ingredients.First(i => i.Id == item.RelatedObjectId).Name;
+                if ((item.RelatedObjectType == (int)ShoppingListObjectType.Ingredient))
+                {
+                    item.ObjectName = item.ObjectName = ingredients.First(i => i.Id == item.RelatedObjectId).Name;
+                }
+                else
+                {
+                    item.ObjectName = item.ObjectName = items.First(i => i.Id == item.RelatedObjectId).Name;
+                }
             }
 
             return Ok(dto);
@@ -125,7 +133,8 @@ namespace MenuListApp.Server.Controllers
             }
 
             var entity = new ShoppingList { Date = DateTimeOffset.Now.Date };
-            if (dto.NoMenuSelection) { 
+            if (dto.NoMenuSelection)
+            {
                 _context.ShoppingLists.Add(entity);
             }
             else
@@ -199,7 +208,8 @@ namespace MenuListApp.Server.Controllers
 
             var slDto = _mapper.Map<ShoppingList_DetailsDTO>(entity);
             var ingredients = await _context.Ingredients.ToListAsync();
-            foreach (var item in slDto.ShoppingListDetails) {
+            foreach (var item in slDto.ShoppingListDetails)
+            {
                 item.ObjectTypeName = ((ShoppingListObjectType)item.RelatedObjectType).ToString();
                 item.ObjectName = ingredients.First(i => i.Id == item.RelatedObjectId).Name;
             }
@@ -207,25 +217,32 @@ namespace MenuListApp.Server.Controllers
             return CreatedAtAction("GetShoppingList", new { id = slDto.Id }, slDto);
         }
 
-        //// DELETE: api/ShoppingLists/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteShoppingList(int id)
-        //{
-        //    if (_context.ShoppingLists == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var entity = await _context.ShoppingLists.FindAsync(id);
-        //    if (entity == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // DELETE: api/ShoppingLists/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteShoppingList(int id)
+        {
+            if (_context.ShoppingLists == null)
+            {
+                return NotFound();
+            }
+            var entity = await _context.ShoppingLists.FindAsync(id);
+            if (entity == null)
+            {
+                return NotFound();
+            }
 
-        //    _context.ShoppingLists.Remove(entity);
-        //    await _context.SaveChangesAsync();
+            _context.ShoppingLists.Remove(entity);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
+            }
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
         private bool ShoppingListExists(int id)
         {

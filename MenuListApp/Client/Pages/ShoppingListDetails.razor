@@ -65,8 +65,7 @@ else
     {
         if (OpenEdit.HasValue && OpenEdit.Value)
         {
-            await DlgService.Alert("Should open edit dialog");
-            //await Edit()
+            await Edit();
         }
     }
 
@@ -87,28 +86,28 @@ else
         var bRes = res as bool?;
         if (bRes.HasValue && bRes.Value)
         {
-            DTO = await Http.GetFromJsonAsync<ShoppingList_DetailsDTO>($"api/ShoppingLists/{Id}");
+            DTO = await Http.GetFromJsonAsync<ShoppingList_DetailsDTO>($"api/shoppingLists/{Id}");
             StateHasChanged();
         }
     }
 
     private async Task Delete(int id)
     {
-        //var res = await Http.DeleteAsync($"api/plates/{id}");
+        var res = await Http.DeleteAsync($"api/shoppingLists/{id}");
 
-        //if (!res.IsSuccessStatusCode)
-        //{
-        //    NotificationSvc.Notify(
-        //        NotificationSeverity.Error,
-        //        "Deletion failed",
-        //        await res.Content.ReadAsStringAsync(),
-        //        8000);
-        //}
-        //else
-        //{
-        //    NavMan.NavigateTo("plates");
-        //    StateHasChanged();
-        //}
+        if (!res.IsSuccessStatusCode)
+        {
+            NotificationSvc.Notify(
+                NotificationSeverity.Error,
+                "Deletion failed",
+                await res.Content.ReadAsStringAsync(),
+                8000);
+        }
+        else
+        {
+            NavMan.NavigateTo("shoppingLists");
+            StateHasChanged();
+        }
 
     }
 }

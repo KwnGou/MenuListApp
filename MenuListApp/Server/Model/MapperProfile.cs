@@ -58,6 +58,7 @@ namespace MenuListApp.Server.Model
             CreateMap<ShoppingList, ShoppingList_DetailsDTO>();
 
             CreateMap<ShoppingList_EditDTO, ShoppingList>();
+
         }
     }
 

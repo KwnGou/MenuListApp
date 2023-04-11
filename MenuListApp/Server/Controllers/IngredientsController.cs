@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using MenuListApp.Shared.MenuListDTOs;
 using MenuListApp.Server.Model;
+using Microsoft.VisualBasic;
 
 namespace MenuListApp.Server.Controllers
 {
@@ -177,6 +178,12 @@ namespace MenuListApp.Server.Controllers
             if (ingredient == null)
             {
                 return NotFound();
+            }
+
+            if (await _context.PlateIngredients.AnyAsync(p => p.IngredientId == id) ||
+                await _context.ShoppingListDetails.AnyAsync(p => p.RelatedObjectId == id && p.RelatedObjectType == (int)ShoppingListObjectType.Ingredient)) 
+            {
+                return BadRequest("Ingredient is in use");
             }
 
             _context.Ingredients.Remove(ingredient);

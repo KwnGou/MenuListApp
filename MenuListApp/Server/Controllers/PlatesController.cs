@@ -199,6 +199,11 @@ namespace MenuListApp.Server.Controllers
                 return NotFound();
             }
 
+            if (await _context.Menus.AnyAsync(m => m.Plate == id))
+            {
+                return BadRequest("Plate is in use");
+            }
+
             _context.Plates.Remove(plate);
             try 
             {

@@ -172,6 +172,11 @@ namespace MenuListApp.Server.Controllers
                 return NotFound();
             }
 
+            if (await _context.ShoppingListDetails.AnyAsync(s => s.RelatedObjectId == id && s.RelatedObjectType == (int)ShoppingListObjectType.Item))
+            {
+                return BadRequest("Item is in use");
+            }
+
             _context.Items.Remove(item);
             try 
             {

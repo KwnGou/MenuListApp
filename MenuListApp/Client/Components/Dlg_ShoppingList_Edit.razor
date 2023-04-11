@@ -83,7 +83,7 @@ else
                                                 AllowClear="@true" AllowFilteringByAllStringColumns="@true" AllowFiltering=@true
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                                 <Columns>
-                                    <RadzenDropDownDataGridColumn Property="@(nameof(Items_GridDTO.Name))" Title="Ingredient" />
+                                    <RadzenDropDownDataGridColumn Property="@(nameof(Items_GridDTO.Name))" Title="Item" />
                                     <RadzenDropDownDataGridColumn Property="@(nameof(Items_GridDTO.ItemCategoryName))" Title="Item Cat." />
                                 </Columns>
                             </RadzenDropDownDataGrid>
@@ -95,10 +95,11 @@ else
             </Tabs>
         </RadzenTabs>
         <br />
-        <div class="row" style="position:absolute;bottom:0;width:100%">
-            <div class="col-12 p-2">
+        <div class="row position-absolute bottom-0 end-0 p-2">
+            <div class="col-12" >
                 <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
-                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel"
+                &nbsp;&nbsp;
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" Text="Cancel"
                           Click="@((args) => DialogSvc.Close(false))" />
             </div>
         </div>
