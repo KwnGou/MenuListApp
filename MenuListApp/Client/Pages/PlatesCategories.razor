@@ -24,7 +24,7 @@ else
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Edit(dto))" />
+                    <RadzenButton Size="ButtonSize.Small" Icon="edit" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Edit(dto))" Disabled="@isEditing" />
                 </Template>
                 <EditTemplate Context="dto">
                     <RadzenButton icon="save" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary" Click="@(async (args) => await Save(dto))" />
@@ -33,7 +33,7 @@ else
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="PlateCategory_GridDTO" Filterable="@false" Sortable="@false" Width="80px" TextAlign="TextAlign.Center">
                 <Template Context="dto">
-                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(async (args) => await DeleteCategory(dto))" />
+                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="@(async (args) => await DeleteCategory(dto))" Disabled="@isEditing" />
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -79,7 +79,6 @@ else
     private async Task OnCreateRow(PlateCategory_GridDTO dto)
     {
         var res = await Http.PostAsJsonAsync<PlateCategory_GridDTO>("api/PlateCategories", dto);
-        Console.WriteLine(dto.Id);
 
         if (!res.IsSuccessStatusCode)
         {
