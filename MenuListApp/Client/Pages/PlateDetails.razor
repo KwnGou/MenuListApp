@@ -88,13 +88,13 @@ else
         var res = await DlgService.OpenAsync<Dlg_Plate_Edit>(
             "Edit Plate",
             dlgParams,
-            new DialogOptions() { Width = "700px", Height = "500px" }
+            new DialogOptions() { Width = "800px", Height = "700px" }
         );
 
         var bRes = res as bool?;
         if (bRes.HasValue && bRes.Value)
         {
-            DTO = await Http.GetFromJsonAsync<Plate_DetailsDTO>($"api/Plates/{Id}");
+            DTO = await Http.GetFromJsonAsync<Plate_DetailsDTO>($"api/Plates/{dto.Id}");
             StateHasChanged();
         }
     }

@@ -95,7 +95,7 @@ else
 @code {
     private RadzenDataGrid<PlateIngredient_GridDTO> grid;
     private Ingredient_GridDTO[] ingredients;
-   
+
 
     [Parameter]
     public Plate_EditDTO DTO { get; set; }
@@ -144,9 +144,12 @@ else
         else
         {
             DialogSvc.Close(true);
-
-            var newPlate = await res.Content.ReadFromJsonAsync<Plate_EditDTO>();
-            NavMan.NavigateTo($"plateDetails/{newPlate.Id}");
+            if (IsNew) 
+            {
+                var newPlate = await res.Content.ReadFromJsonAsync<Plate_EditDTO>();
+                NavMan.NavigateTo($"plateDetails/{newPlate.Id}");
+            }
+            
         }
     }
 

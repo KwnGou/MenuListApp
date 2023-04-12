@@ -141,7 +141,7 @@ namespace MenuListApp.Server.Controllers
             {
                 // get plate ingerdients
                 var data = await _context.Menus
-                    .Where(m => m.Date > dto.From.Date && m.Date < dto.To.Date.AddDays(1))
+                    .Where(m => m.Date >= dto.From && m.Date < dto.To.Date.AddDays(1))
                     .Include(m => m.PlateNavigation)
                     .ThenInclude(p => p.PlateIngredients)
                     .SelectMany(m => m.PlateNavigation.PlateIngredients)
