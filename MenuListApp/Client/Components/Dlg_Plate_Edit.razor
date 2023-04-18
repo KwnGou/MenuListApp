@@ -61,7 +61,7 @@ else
                     <div class="row">
                         <div class="col-2">Select new ingerdient</div>
                         <div class="col-6">
-                            <RadzenDropDown Data="@ingredients" TValue="int?" AllowClear="@true"
+                            <RadzenDropDown Data="@ingredients" @ref="@ingredientsGrid" TValue="int?" AllowClear="@true"
                                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="@true"
                                         TextProperty="@(nameof(Ingredient_GridDTO.Name))"
                                         ValueProperty="@(nameof(Ingredient_GridDTO.Id))"
@@ -95,6 +95,8 @@ else
 @code {
     private RadzenDataGrid<PlateIngredient_GridDTO> grid;
     private Ingredient_GridDTO[] ingredients;
+
+    private RadzenDropDown<int?> ingredientsGrid;
 
 
     [Parameter]
@@ -149,7 +151,7 @@ else
                 var newPlate = await res.Content.ReadFromJsonAsync<Plate_EditDTO>();
                 NavMan.NavigateTo($"plateDetails/{newPlate.Id}");
             }
-            
+
         }
     }
 
@@ -179,7 +181,7 @@ else
             DTO.Ingredients = new List<PlateIngredient_GridDTO>();
         }
         DTO.Ingredients.Add(new PlateIngredient_GridDTO { PlateId = DTO.Id, IngredientId = newIngId.Value });
-
+        ingredientsGrid.Reset();
         await grid.Reload();
     }
 }

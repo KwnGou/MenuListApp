@@ -63,7 +63,7 @@ else
                     </RadzenDataGrid>
                     <div class="row">
                         <div class="col-6">
-                            <RadzenDropDownDataGrid TValue="int?" Data="@ingredients"
+                            <RadzenDropDownDataGrid TValue="int?" Data="@ingredients" @ref="@ingredientsGrid"
                                                 @bind-SelectedItem="@selectedIngredient" @bind-Value="@selectedIngredientId"
                                                 ValueProperty="@(nameof(Ingredient_GridDTO.Id))" Style="width:100%"
                                                 AllowClear="@true" AllowFilteringByAllStringColumns="@true" AllowFiltering=@true
@@ -77,7 +77,7 @@ else
                                       Disabled="@(!selectedIngredientId.HasValue)" Click="@AddIngredient" />
                         </div>
                         <div class="col-6">
-                            <RadzenDropDownDataGrid TValue="int?" Data="@otherItems"
+                            <RadzenDropDownDataGrid TValue="int?" Data="@otherItems" @ref="@itemsGrid"
                                                 @bind-SelectedItem="@selectedOtherItem" @bind-Value="@selectedOtherItemId"
                                                 ValueProperty="@(nameof(Items_GridDTO.Id))" Style="width:100%"
                                                 AllowClear="@true" AllowFilteringByAllStringColumns="@true" AllowFiltering=@true
@@ -117,9 +117,13 @@ else
     private object selectedIngredient;
     private int? selectedIngredientId;
 
+    private RadzenDropDownDataGrid<int?> itemsGrid;
+
     private Items_GridDTO[] otherItems;
     private object selectedOtherItem;
     private int? selectedOtherItemId;
+
+    private RadzenDropDownDataGrid<int?> ingredientsGrid;
 
     protected override async Task OnInitializedAsync()
     {
@@ -168,6 +172,7 @@ else
                     ObjectTypeName = ((ShoppingListObjectType)ShoppingListObjectType.Ingredient).ToString(),
                     ShoppingListId = DTO.Id
                 });
+            ingredientsGrid.Reset();
             await grid.Reload();
         }
     }
@@ -184,6 +189,7 @@ else
                     ObjectTypeName = ((ShoppingListObjectType)ShoppingListObjectType.Item).ToString(),
                     ShoppingListId = DTO.Id
                 });
+            itemsGrid.Reset();
             await grid.Reload();
         }
     }

@@ -132,7 +132,10 @@ namespace MenuListApp.Server.Controllers
                 return Problem("Entity set 'MenuListDBContext.ShoppingLists'  is null.");
             }
 
-            var entity = new ShoppingList { Date = DateTimeOffset.Now.Date };
+            var entity = new ShoppingList { 
+                Date = DateTimeOffset.Now.Date, 
+                Comments = $"Menus from {dto.From.ToString("d MMM yyyy")} to {dto.To.ToString("d MMM yyyy")}" 
+            };
             if (dto.NoMenuSelection)
             {
                 _context.ShoppingLists.Add(entity);

@@ -162,7 +162,7 @@ namespace MenuListApp.Server.Controllers
                 return NotFound();
             }
 
-            if (await _context.Items.AnyAsync(i => i.Id == id))
+            if (await _context.Ingredients.AnyAsync(i => i.IngredientCategory == id))
             {
                 return BadRequest("Category is in use");
             }
