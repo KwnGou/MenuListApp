@@ -1,5 +1,5 @@
 MenuListApp is created using Microsoft Visual Studio 2022 Community Edition and Microsoft SQL Server 2019 Developer Edition.
-The main layout of the client is based on the standard applcation layout of Radzen Blazor Studio application.
+The main layout of the client is based on the standard application layout of Radzen Blazor Studio application.
 
 Listed below are three alternative ways to build and run this app:
 
@@ -24,7 +24,6 @@ Alternatively
 ### Required Resources:
 [SQL Server Developer Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/downloads/)
-### To build and run this app:
 Clone the repository `git clone https://github.com/KwnGou/MenuListApp.git`
 Create the DB using the Microsoft SQL Server Management Studio.
    Open the Microsoft SQL Server Management Studio.
