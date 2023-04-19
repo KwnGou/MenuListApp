@@ -42,7 +42,7 @@ Listed below are three alternative ways to build and run this app:
 ### Required Resources:
 1. [SQL Server Developer Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 2. [Visual Studio 2022 Community Edition](https://visualstudio.microsoft.com/downloads/)
-3. [Internet Information Services (IIS)](Install from windows features)
+3. [Internet Information Services (IIS)](https://www.how2shout.com/how-to/how-to-enable-iis-internet-information-services-on-windows-11.html)
 
 ### To build and run this app:
 1. Clone the repository `git clone https://github.com/KwnGou/MenuListApp.git`
