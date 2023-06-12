@@ -146,16 +146,9 @@ namespace MenuListApp.Server.Controllers
             {
                 await _context.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException) 
+            catch (DbUpdateException ex)
             {
-                if (!IngredientExists(dto.Id))
-                {
-                    return NotFound();
-                }
-                else 
-                {
-                    throw;
-                }
+                return BadRequest($"{ex.Message}: {ex?.InnerException?.Message}");
             }
 
             await _context.Entry(entity).Reference(c => c.IngredientCategoryNavigation).LoadAsync();
