@@ -213,11 +213,6 @@ namespace MenuListApp.Server.Controllers
 
         private async  Task<(bool result, string message)> ValidateData(Menu_GridDTO dto)
         {
-            if (await _context.Menus.AnyAsync(m => m.Id == dto.Id))
-            {
-                return (false, "Menu id is in use");
-            }
-
             if (!(await _context.Plates.AnyAsync(p => p.Id == dto.Plate)))
             {
                 return (false, "Specified plate id does not exist");
