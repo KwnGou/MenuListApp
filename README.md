@@ -1,4 +1,4 @@
-MenuListApp is created using Microsoft Visual Studio 2022 Community Edition and Microsoft SQL Server 2019 Developer Edition.
+MenuListApp is a Single Page Application it was created using Microsoft Visual Studio 2022 Community Edition and Microsoft SQL Server 2019 Developer Edition.
 The main layout of the client is based on the standard application layout of Radzen Blazor Studio application.
 
 Listed below are three alternative ways to build and run this app:
@@ -60,4 +60,18 @@ Listed below are three alternative ways to build and run this app:
       2. Bind the site to a port different than the default or disable the default site.
       3. Use the browser and navigate to the site.
 
+### Screenshots:
+
+Menu grid with inline add, edit and delete.
+
+![image](https://github.com/KwnGou/MenuListApp/assets/110529457/193f75ca-13d3-4449-aa1a-a3b8386487ad)
+
+Plate edit dialogue.
+
+![image](https://github.com/KwnGou/MenuListApp/assets/110529457/eff5120c-3b92-43dc-aedd-373f196acff0)
+
+Shopping list dialogue.
+
+![image](https://github.com/KwnGou/MenuListApp/assets/110529457/9b26f61f-1956-43e8-802c-d824e3c77222)
+![image](https://github.com/KwnGou/MenuListApp/assets/110529457/d6368621-a8db-49b9-8daf-338cc3ceb6b6)
 
