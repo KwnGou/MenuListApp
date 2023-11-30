@@ -1,5 +1,6 @@
 MenuListApp is a Single Page Application it was created using Microsoft Visual Studio 2022 Community Edition and Microsoft SQL Server 2019 Developer Edition.
-The main layout of the client is based on the standard application layout of Radzen Blazor Studio application.
+The main layout of the client is based on the standard application layout of Radzen Blazor Studio application. The application functiosn as a cook book
+and shopping list generator. 
 
 Listed below are three alternative ways to build and run this app:
 
