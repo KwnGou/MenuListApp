@@ -57,7 +57,7 @@ namespace MenuListApp.Server.Controllers
 
         // GET: api/Ingredients/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Ingredient_GridDTO>>> GetIngredient(int id)
+        public async Task<ActionResult<Ingredient_GridDTO>> GetIngredient(int id)
         {
             if (_context.Ingredients == null)
             {
